@@ -1,24 +1,30 @@
 {
     "name": "meriksk/date-time",
     "type": "library",
-    "description": "PHP Altcoin/Bitcoin data Explorer",
-    "keywords": ["date", "time", "php", "helper"],
-    "homepage": "https://github.com/merik",
+    "description": "An international PHP extension for DateTime. Dt uses Carbon to manage date and time.",
+    "keywords": [
+        "date",
+        "time",
+        "DateTime"
+    ],
+    "homepage": "https://github.com/meriksk",
     "license": "MIT",
     "authors": [
         {
             "name": "Marek Drugac",
             "email": "marek@luceon.sk",
-            "homepage": "https://github.com/merik/",
+            "homepage": "https://github.com/meriksk",
             "role": "Developer"
         }
     ],
+    "prefer-stable": true,
+    "minimum-stability": "dev",
     "require": {
         "php": ">=5.6.0",
         "nesbot/carbon": "^2.43"
     },
     "require-dev": {
-       "phpunit/phpunit": "^7.0" 
+       "phpunit/phpunit": "^7.0"
     },
 	"autoload": {
         "psr-4": {

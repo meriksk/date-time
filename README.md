@@ -1,4 +1,4 @@
-# Carbon
+# Dt (PHP DateTime Helper)
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/nesbot/carbon.svg?style=flat-square)](https://packagist.org/packages/merisk/date-time)
 [![Total Downloads](https://img.shields.io/packagist/dt/nesbot/carbon.svg?style=flat-square)](https://packagist.org/packages/merisk/date-time)
@@ -13,8 +13,8 @@ An international PHP extension for DateTime. Dt uses Carbon to manage date and t
 use meriksk\Dt;
 
 // current time
-printf("Right now is %s", Carbon::now()->toDateTimeString());
-printf("Right now in Vancouver is %s", Carbon::now('America/Vancouver'));  //implicit __toString()
+printf("Right now is %s", Dt::now()->toDateTimeString());
+printf("Right now in Vancouver is %s", Dt::now('America/Vancouver'));  //implicit __toString()
 
 // get format - it supports also aliases for date formats, i.e.: "date_time" is shortcut for "n/j/Y g:i:s A".
 $format = Dt::getFormat('date'); // 'n/j/Y'
