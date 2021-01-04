@@ -444,6 +444,100 @@ class Dt extends Carbon
 	 * @param string $range
 	 *
 	 * Possible parameters:<br>
+	 * 'day', 'today', 'start of day', 'morning'<br>
+	 * 'midnight', 'today midnight', 'end of day'<br>
+	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
+	 * '+1d', '+1 day', 'tomorrow', 'next day'<br>
+	 * 'week', 'this week', 'current week', 'start of week'<br>
+	 * 'end of week'<br>
+	 * '-1w', '-1 week', 'previous week', 'week ago', 'one week ago'<br>
+	 * '+1w', '+1 week', 'next week'<br>
+	 * 'month', 'this month', 'current month', 'start of month'<br>
+	 * '-1m', '-1 month', '1 month ago', 'month ago', 'one month ago'<br>
+	 * '+1m', '+1 month', 'next month'<br>
+	 * 'year', 'this year', 'current year', 'start of year'<br>
+	 * '-1y', '-1 year', 'previous year', 'year ago', 'one year ago'<br>
+	 * '+1y', '+1 year', 'next year'<br>
+	 *
+	 * @param string $timezone
+	 * @param int|\DateTime $time
+	 * @return DateTime object
+	 * @link https://gist.github.com/sepehr/6351425
+	 */
+	public static function getTime($range, $time = null, $timezone = null)
+	{
+		$dt = new Dt($time, $timezone);
+		switch ($range) {
+			// today
+			case in_array($range, ['day', 'today', 'start of day', 'morning']):
+				$dt->startOfDay();
+				break;
+			// today midnight
+			case in_array($range, ['midnight', 'today midnight', 'end of day']):
+				$dt->endOfDay();
+				break;
+			// yesterday
+			case in_array($range, ['-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day']):
+				$dt->subDay()->startOfDay();
+				break;
+			// tomorrow
+			case in_array($range, ['+1d', '+1 day', 'tomorrow', 'next day']):
+				$dt->addDay()->startOfDay();
+				break;
+			// this week
+			case in_array($range, ['week', 'this week', 'current week', 'start of week']):
+				$dt->startOfWeek();
+				break;
+			// end of this week
+			case in_array($range, ['end of week']):
+				$dt->endOfWeek();
+				break;
+			// previous week
+			case in_array($range, ['-1w', '-1 week', 'previous week', 'week ago', 'one week ago']):
+				$dt->subWeek()->startOfWeek();
+				break;
+			// next week
+			case in_array($range, ['+1w', '+1 week', 'next week']):
+				$dt->addWeek()->startOfWeek();
+				break;
+			// month
+			case in_array($range, ['month', 'this month', 'current month', 'start of month']):
+				$dt->startOfMonth();
+				break;
+			// previous month
+			case in_array($range, ['-1m', '-1 month', '1 month ago', 'month ago', 'one month ago']):
+				$dt->subMonthsWithNoOverflow()->startOfMonth();
+				break;
+			// next month
+			case in_array($range, ['+1m', '+1 month', 'next month']):
+				$dt->addMonthNoOverflow()->startOfMonth();
+				break;
+			// year
+			case in_array($range, ['year', 'this year', 'current year', 'start of year']):
+				$dt->startOfYear();
+				break;
+			// previous year
+			case in_array($range, ['-1y', '-1 year', 'previous year', 'year ago', 'one year ago']):
+				$dt->subYearWithNoOverflow()->startOfYear();
+				break;
+			// next year
+			case in_array($range, ['+1y', '+1 year', 'next year']):
+				$dt->addYearWithNoOverflow()->startOfYear();
+				break;
+			// default modifier
+			default:
+				$dt->modify($range);
+		}
+
+		// return
+		return $dt;
+	}
+	
+	/**
+	 * Calculate boundaries for given timeframe.
+	 * @param string $range
+	 *
+	 * Possible parameters:<br>
 	 * 'day', 'today'<br>
 	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
 	 * '+1d', '+1 day', 'tomorrow', 'next day'<br>

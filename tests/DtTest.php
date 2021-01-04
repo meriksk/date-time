@@ -194,6 +194,31 @@ class DateTimeTest extends BaseTestCase
 		//$this->assertEquals('14:30:00.u'', $d);
     }
 
+    public function testGetTime()
+    {
+		// base time
+		$baseDt = clone $this->DATETIME_2021_12_31_143000_UTC;
+		
+		$dt = Dt::getTime('day', $baseDt);
+		$this->assertEquals('2021-12-31 00:00:00', $dt->toDateTimeString());
+		
+		$dt = Dt::getTime('-1d', $baseDt);
+		$this->assertEquals('2021-12-30 00:00:00', $dt->toDateTimeString());
+		
+		$dt = Dt::getTime('+1d', $baseDt);
+		$this->assertEquals('2022-01-01 00:00:00', $dt->toDateTimeString());
+		
+		$dt = Dt::getTime('+1d', $baseDt);
+		$this->assertEquals('2022-01-01 00:00:00', $dt->toDateTimeString());
+		
+		$dt = Dt::getTime('year', $baseDt);
+		$this->assertEquals('2021-01-01 00:00:00', $dt->toDateTimeString());
+
+		// custom modifier
+		$dt = Dt::getTime('-2 hour -5 minutes', $baseDt);
+		$this->assertEquals('2021-12-31 12:25:00', $dt->toDateTimeString());
+	}
+	
     public function testGetBoundaries()
     {
 		// 2021-12-31 14:30:00
