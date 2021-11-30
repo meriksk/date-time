@@ -1,7 +1,7 @@
 # Dt (PHP DateTime Helper)
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/nesbot/carbon.svg?style=flat-square)](https://packagist.org/packages/merisk/date-time)
-[![Total Downloads](https://img.shields.io/packagist/dt/nesbot/carbon.svg?style=flat-square)](https://packagist.org/packages/merisk/date-time)
+[![Latest Stable Version](https://img.shields.io/packagist/v/meriksk/date-time.svg?style=flat-square)](https://packagist.org/packages/meriksk/date-time)
+[![Total Downloads](https://img.shields.io/packagist/dt/meriksk/date-time.svg?style=flat-square)](https://packagist.org/packages/meriksk/date-time)
 
 An international PHP extension for DateTime. Dt uses Carbon to manage date and time. [http://carbon.nesbot.com](http://carbon.nesbot.com)
 
