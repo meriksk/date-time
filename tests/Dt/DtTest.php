@@ -14,30 +14,31 @@ class DateTimeTest extends BaseTestCase
 	public function testConstruct()
 	{
 		$dt = new Dt();
-		
+		$this->assertIsObject($dt);
+		$this->assertEquals($this->getDefaultTimezone(), $dt->getTimezone()->getName());
 	}
 
 	public function testCreate()
 	{
 		// no parameters (system default)
-		$Dt = Dt::now();
-		$this->assertIsObject($Dt);
-		$this->assertEquals($this->getDefaultTimezone(), $Dt->getTimezone()->getName());
+		$dt = Dt::now();
+		$this->assertIsObject($dt);
+		$this->assertEquals($this->getDefaultTimezone(), $dt->getTimezone()->getName());
 
 		// now + passed timezone
-		$Dt = new Dt('now', 'Europe/Bratislava');
-		$this->assertEquals('Europe/Bratislava', $Dt->getTimezone()->getName());
+		$dt = new Dt('now', 'Europe/Bratislava');
+		$this->assertEquals('Europe/Bratislava', $dt->getTimezone()->getName());
 		
 		// passed timestamp + timezone
-		$Dt = new Dt($this->DATETIME_2021_12_31_143000_UTC, 'US/Central');		
-		$this->assertEquals('US/Central', $Dt->getTimezone()->getName());
-		$this->assertEquals('08:30:00', $Dt->format('H:i:s'));
+		$dt = new Dt($this->DATETIME_2021_12_31_143000_UTC, 'US/Central');		
+		$this->assertEquals('US/Central', $dt->getTimezone()->getName());
+		$this->assertEquals('08:30:00', $dt->format('H:i:s'));
 		
 		// passed time + timezone
-		$Dt = new Dt('16:30', 'Europe/Bratislava');
-		$this->assertEquals('16:30:00', $Dt->format('H:i:s'));
-		$Dt->setTimezone('UTC');
-		$this->assertEquals('15:30:00', $Dt->format('H:i:s'));
+		$dt = new Dt('16:30', 'Europe/Bratislava');
+		$this->assertEquals('16:30:00', $dt->format('H:i:s'));
+		$dt->setTimezone('UTC');
+		$this->assertEquals('15:30:00', $dt->format('H:i:s'));
 	}
 	
 	public function testCheckTimezone()
@@ -331,7 +332,7 @@ class DateTimeTest extends BaseTestCase
 
 	public function testFormat()
 	{
-		$dt = Dt::parse('12/24/2017 4:30:00 AM', 'datetime', 'UTC');
+		$dt = Dt::p('12/24/2017 4:30:00 AM', 'date_time', 'UTC');
 		$this->assertEquals($dt->format('r'), 'Sun, 24 Dec 2017 04:30:00 +0000');
 	}
 

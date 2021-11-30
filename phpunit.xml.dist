@@ -4,14 +4,15 @@
 	backupStaticAttributes="false"
 	bootstrap="vendor/autoload.php"
 	colors="true"
+	defaultTestSuite="unit" 
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	processIsolation="false"
 	stopOnFailure="false">
     <testsuites>
-        <testsuite name="test Suite">
-            <directory suffix=".php">./tests/</directory>
+        <testsuite name="unit"> 
+            <directory>tests/Dt</directory>
         </testsuite>
     </testsuites>
 </phpunit>

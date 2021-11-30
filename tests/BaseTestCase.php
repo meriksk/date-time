@@ -7,7 +7,8 @@ use DateTime;
 use DateTimeZone;
 use meriksk\DateTime\Dt;
 
-class BaseTestCase extends TestCase
+
+abstract class BaseTestCase extends TestCase
 {
 
  	/**
@@ -33,8 +34,7 @@ class BaseTestCase extends TestCase
     /**
      * @var string
      */
-    private $default_timezone;
-
+    protected $default_timezone;
 
 
     protected function setUp()
@@ -84,6 +84,6 @@ class BaseTestCase extends TestCase
         }
 
         $this->assertSame($expected, $actual);
-    }
+	}
 
 }
