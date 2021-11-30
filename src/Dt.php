@@ -532,7 +532,7 @@ class Dt extends Carbon
 		// return
 		return $dt;
 	}
-	
+
 	/**
 	 * Calculate boundaries for given timeframe.
 	 * @param string $range
@@ -554,13 +554,19 @@ class Dt extends Carbon
 	 * @param string $timezone
 	 * @param int|\DateTime $time
 	 * @param bool $returnObject
-	 * @return array
+	 * @return bool|array
+	 * @throws \Exception
 	 * @link https://gist.github.com/sepehr/6351425
 	 */
 	public static function getBoundaries($range, $returnObject = false, $time = null, $timezone = null)
 	{
 
 		$dt = new Dt($time, $timezone);
+
+		if (!$dt) {
+			return false;
+		}
+
 		//if ($timezone) { $dt->setTimezone($timezone); }
 
 		$from = clone $dt;
