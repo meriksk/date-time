@@ -231,6 +231,16 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('2021-12-31 00:00:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 23:59:59', $b[1]->toDateTimeString());
 
+		// 'm', 'minute'
+		$b = Dt::getBoundaries('minute', true, $ts);
+		$this->assertEquals('2021-12-31 14:30:00', $b[0]->toDateTimeString());
+		$this->assertEquals('2021-12-31 14:30:59', $b[1]->toDateTimeString());
+
+		// 'h', 'hour'
+		$b = Dt::getBoundaries('hour', true, $ts);
+		$this->assertEquals('2021-12-31 14:00:00', $b[0]->toDateTimeString());
+		$this->assertEquals('2021-12-31 14:59:59', $b[1]->toDateTimeString());
+
 		// 'day', 'today'
 		$b = Dt::getBoundaries('day', true, $ts);
 		$this->assertEquals('2021-12-31 00:00:00', $b[0]->toDateTimeString());

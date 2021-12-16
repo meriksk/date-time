@@ -538,6 +538,8 @@ class Dt extends Carbon
 	 * @param string $range
 	 *
 	 * Possible parameters:<br>
+	 * 'm', 'minute'<br>
+	 * 'h', 'hour'<br>
 	 * 'day', 'today'<br>
 	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
 	 * '+1d', '+1 day', 'tomorrow', 'next day'<br>
@@ -577,6 +579,19 @@ class Dt extends Carbon
 			// default
 			default:
 				return false;
+				
+
+			// minute
+			case in_array($range, ['m', 'minute']):
+				$from->startOfMinute();
+				$to->endOfMinute();
+				break;
+
+			// hour
+			case in_array($range, ['h', 'hour']):
+				$from->startOfHour();
+				$to->endOfHour();
+				break;
 
 			// today
 			case in_array($range, ['day', 'today']):
