@@ -28,19 +28,24 @@ class DateTimeTest extends BaseTestCase
 		// now + passed timezone
 		$dt = new Dt('now', 'Europe/Bratislava');
 		$this->assertEquals('Europe/Bratislava', $dt->getTimezone()->getName());
-		
+
 		// passed timestamp + timezone
-		$dt = new Dt($this->DATETIME_2021_12_31_143000_UTC, 'US/Central');		
+		$dt = new Dt($this->DATETIME_2021_12_31_143000_UTC, 'US/Central');
 		$this->assertEquals('US/Central', $dt->getTimezone()->getName());
 		$this->assertEquals('08:30:00', $dt->format('H:i:s'));
-		
+
 		// passed time + timezone
 		$dt = new Dt('16:30', 'Europe/Bratislava');
 		$this->assertEquals('16:30:00', $dt->format('H:i:s'));
 		$dt->setTimezone('UTC');
 		$this->assertEquals('15:30:00', $dt->format('H:i:s'));
+
+		// timestamp
+		$dt = new Dt($this->TIMESTAMP_2021_12_31_143000, 'Europe/Bratislava');
+		$dt->setTimezone('UTC');
+		$this->assertEquals('13:30:00', $dt->format('H:i:s'));
 	}
-	
+
 	public function testCheckTimezone()
 	{
 		// string (valid timezone)
@@ -64,15 +69,15 @@ class DateTimeTest extends BaseTestCase
 	{
 		$ts = Dt::createTimestamp('31.12.2021 08:30:00', 'Europe/Bratislava');
 		$this->assertIsInt($ts);
-		$this->assertEquals(1640935800, $ts);	
+		$this->assertEquals(1640935800, $ts);
 	}
-	
+
 	public function testGetFormat()
 	{
 		// default locale (en)
 		$f = Dt::getFormat('date_time');
-		$this->assertEquals('n/j/Y g:i:s A', $f);		
-		
+		$this->assertEquals('n/j/Y g:i:s A', $f);
+
 		// slovak locale
 		$f = Dt::getFormat('date_time', null, 'sk');
 		$this->assertEquals('j.n.Y H:i:s', $f);
@@ -84,15 +89,15 @@ class DateTimeTest extends BaseTestCase
 		// slovak locale + convert YII2
 		$f = Dt::getFormat('date_time', Dt::TARGET_YII2, 'sk');
 		$this->assertEquals('d.M.yyyy HH:mm:ss', $f);
-		
+
 	}
-	
+
 	public function testConvertFormat()
 	{
 		// named format (n/j/Y => M/d/yyyy)
 		$f = Dt::convertFormat('date', Dt::TARGET_ICU);
 		$this->assertEquals('M/d/yyyy', $f);
-		
+
 		// named format (sk) (j.n.Y => d.M.yyyy)
 		$f = Dt::convertFormat('date', Dt::TARGET_YII2, 'sk');
 		$this->assertEquals('d.M.yyyy', $f);
@@ -106,19 +111,19 @@ class DateTimeTest extends BaseTestCase
 
 		// timezone Europe/Bratislava
 		$_dt_ba = clone $this->DATETIME_2021_12_31_143000_EU_BRATISLAVA;
-		$_ts_ba = $_dt_ba->getTimestamp();		
-		
+		$_ts_ba = $_dt_ba->getTimestamp();
+
 		// en (default locale)
 		$d = Dt::f('date', $_ts);
 		$this->assertEquals('12/31/2021', $d);
 		$d = Dt::f('date_time', $_ts);
-		$this->assertEquals('12/31/2021 2:30:00 PM', $d);		
+		$this->assertEquals('12/31/2021 2:30:00 PM', $d);
 		$d = Dt::f('date_time', $_ts, 'Europe/Bratislava');
 		$this->assertEquals('12/31/2021 3:30:00 PM', $d);
 
 		// timestamp, utc
 		$d = Dt::f('date_time', $_ts);
-		$this->assertEquals('12/31/2021 2:30:00 PM', $d);	
+		$this->assertEquals('12/31/2021 2:30:00 PM', $d);
 
 		// timestamp, Europe/Bratislava
 		$d = Dt::f('date_time', $_ts, 'Europe/Bratislava');
@@ -131,7 +136,7 @@ class DateTimeTest extends BaseTestCase
 		// use DateTime object, change timezone -> utc
 		$d = Dt::f('date_time', $_dt_ba, 'UTC');
 		$this->assertEquals('12/31/2021 1:30:00 PM', $d);
-	
+
 		// use DateTime object, Europe/Bratislava
 		$d = Dt::f('date_time', $_dt_ba, 'Europe/Bratislava');
 		$this->assertEquals('12/31/2021 2:30:00 PM', $d);
@@ -143,11 +148,11 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('31.12.2021 14:30:00', $d);
 		$d = Dt::f('date_time', $_ts, 'Europe/Bratislava', 'sk');
 		$this->assertEquals('31.12.2021 15:30:00', $d);
-		
+
 		// sk (custom format)
 		$d = Dt::f('l, D, F, j.n.Y H:i', $_ts, 'Europe/Bratislava', 'sk');
 		$this->assertEquals('piatok, pi, december, 31.12.2021 15:30', $d);
-		
+
 		// named formats
 		$d = Dt::f('date', $_ts, null, 'sk');
 		$this->assertEquals('31.12.2021', $d);
@@ -159,7 +164,7 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('31 december 2021', $d);
 		$d = Dt::f('date_full', $_ts, null, 'sk');
 		$this->assertEquals('31 december 2021 UTC', $d);
-		
+
 		$d = Dt::f('date_time', $_ts, null, 'sk');
 		$this->assertEquals('31.12.2021 14:30:00', $d);
 		$d = Dt::f('date_time_short', $_ts, null, 'sk');
@@ -175,7 +180,7 @@ class DateTimeTest extends BaseTestCase
 		$d = Dt::f('date_time_tz', $_ts, null, 'sk');
 		$this->assertEquals('31.12.2021 14:30:00 UTC', $d);
 		//$d = Dt::f('date_time_ms', $_ts, null, 'sk');
-		//$this->assertEquals('31.12.2021 14:30', $d);		
+		//$this->assertEquals('31.12.2021 14:30', $d);
 		$d = Dt::f('date_human', $_ts, null, 'sk');
 		$this->assertEquals('31.12.2021', $d);
 
@@ -199,19 +204,19 @@ class DateTimeTest extends BaseTestCase
     {
 		// base time
 		$baseDt = clone $this->DATETIME_2021_12_31_143000_UTC;
-		
+
 		$dt = Dt::getTime('day', $baseDt);
 		$this->assertEquals('2021-12-31 00:00:00', $dt->toDateTimeString());
-		
+
 		$dt = Dt::getTime('-1d', $baseDt);
 		$this->assertEquals('2021-12-30 00:00:00', $dt->toDateTimeString());
-		
+
 		$dt = Dt::getTime('+1d', $baseDt);
 		$this->assertEquals('2022-01-01 00:00:00', $dt->toDateTimeString());
-		
+
 		$dt = Dt::getTime('+1d', $baseDt);
 		$this->assertEquals('2022-01-01 00:00:00', $dt->toDateTimeString());
-		
+
 		$dt = Dt::getTime('year', $baseDt);
 		$this->assertEquals('2021-01-01 00:00:00', $dt->toDateTimeString());
 
@@ -219,13 +224,13 @@ class DateTimeTest extends BaseTestCase
 		$dt = Dt::getTime('-2 hour -5 minutes', $baseDt);
 		$this->assertEquals('2021-12-31 12:25:00', $dt->toDateTimeString());
 	}
-	
+
     public function testGetBoundaries()
     {
 		// 2021-12-31 14:30:00
 		$dt = clone $this->DATETIME_2021_12_31_143000_UTC;
-		$ts = $dt->getTimestamp();	
-		
+		$ts = $dt->getTimestamp();
+
 		// object
 		$b = Dt::getBoundaries('day', true, $this->DATETIME_2021_12_31_143000_EU_BRATISLAVA->getTimestamp(), 'Europe/Bratislava');
 		$this->assertEquals('2021-12-31 00:00:00', $b[0]->toDateTimeString());
@@ -270,17 +275,17 @@ class DateTimeTest extends BaseTestCase
 		$b = Dt::getBoundaries('+1 week', true, $ts);
 		$this->assertEquals('2022-01-03 00:00:00', $b[0]->toDateTimeString()); // monday
 		$this->assertEquals('2022-01-09 23:59:59', $b[1]->toDateTimeString()); // sunday
-		
+
 		// 'month', 'this month', 'current month'
 		$b = Dt::getBoundaries('month', true, $ts);
 		$this->assertEquals('2021-12-01 00:00:00', $b[0]->toDateTimeString()); // start of month
 		$this->assertEquals('2021-12-31 23:59:59', $b[1]->toDateTimeString()); // end of month
-		
+
 		// '-1 month', '1 month ago', 'month ago', 'one month ago'
 		$b = Dt::getBoundaries('-1 month', true, $ts);
 		$this->assertEquals('2021-11-01 00:00:00', $b[0]->toDateTimeString()); // start of month
 		$this->assertEquals('2021-11-30 23:59:59', $b[1]->toDateTimeString()); // end of month
-		
+
 		// '+1 month', 'next month'
 		$b = Dt::getBoundaries('+1 month', true, $ts);
 		$this->assertEquals('2022-01-01 00:00:00', $b[0]->toDateTimeString()); // start of month
@@ -363,26 +368,26 @@ class DateTimeTest extends BaseTestCase
 	*/
 
 	public function testIsDay()
-	{			
+	{
 		// is day (05:00 - 21:00)
-		
+
 		// no timezone
 		$dt1 = Dt::create('2017-05-01 04:59:59', 'Europe/Bratislava');
 		$dt2 = Dt::create('2017-05-01 05:00:00', 'Europe/Bratislava');
 		$dt3 = Dt::create('2017-05-01 20:59:59', 'Europe/Bratislava');
 		$dt4 = Dt::create('2017-05-01 21:00:00', 'Europe/Bratislava');
-		
+
 		$this->assertFalse($dt1->isDay());
 		$this->assertTrue($dt2->isDay());
 		$this->assertTrue($dt3->isDay());
 		$this->assertFalse($dt4->isDay());
-		
+
 		// custom time-frame (02:00 - 03:00)
-		$dt1 = Dt::create('2017-05-01 01:59:59', 'Europe/Bratislava');		
+		$dt1 = Dt::create('2017-05-01 01:59:59', 'Europe/Bratislava');
 		$dt2 = Dt::create('2017-05-01 02:00:00', 'Europe/Bratislava');
 		$dt3 = Dt::create('2017-05-01 02:59:59', 'Europe/Bratislava');
 		$dt4 = Dt::create('2017-05-01 03:00:00', 'Europe/Bratislava');
-		
+
 		$this->assertFalse($dt1->isDay(null, 120, 180));
 		$this->assertFalse($dt1->isDay(null, '02:00', '03:00'));
 		$this->assertTrue($dt2->isDay(null, 120, 180));
@@ -391,23 +396,23 @@ class DateTimeTest extends BaseTestCase
 		$this->assertTrue($dt3->isDay(null, '02:00', '03:00'));
 		$this->assertFalse($dt4->isDay(null, 120, 180));
 		$this->assertFalse($dt4->isDay(null, '02:00', '03:00'));
-		
+
 		// diferent timezone
 		// UTC (6:30 AM) -> US/Central (01:30 AM)
 		$dt = Dt::create('2017-05-01 6:30:00 AM', 'UTC');
 		$this->assertFalse($dt->isDay('US/Central'));
 	}
-	
+
 	public function testIsNight()
 	{
 		// is night (21:00 - 05:00)
-		
+
 		// no timezone
 		$dt1 = Dt::create('2017-05-01 20:59:59', 'Europe/Bratislava');
 		$dt2 = Dt::create('2017-05-01 21:00:00', 'Europe/Bratislava');
 		$dt3 = Dt::create('2017-05-01 04:59:59', 'Europe/Bratislava');
 		$dt4 = Dt::create('2017-05-01 05:00:00', 'Europe/Bratislava');
-		
+
 		$this->assertFalse($dt1->isNight());
 		$this->assertTrue($dt2->isNight());
 		$this->assertTrue($dt3->isNight());

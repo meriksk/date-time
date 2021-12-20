@@ -444,6 +444,8 @@ class Dt extends Carbon
 	 * @param string $range
 	 *
 	 * Possible parameters:<br>
+	 * 'm', 'minute'<br>
+	 * 'h', 'hour'<br>
 	 * 'day', 'today', 'start of day', 'morning'<br>
 	 * 'midnight', 'today midnight', 'end of day'<br>
 	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
@@ -466,8 +468,24 @@ class Dt extends Carbon
 	 */
 	public static function getTime($range, $time = null, $timezone = null)
 	{
-		$dt = new Dt($time, $timezone);
+
+		// custom time
+		if (is_numeric($time) && $time > 0) {
+			$dt = new Dt((int)$time, $timezone);
+		// now
+		} else {
+			$dt = new Dt($time, $timezone);
+		}
+
 		switch ($range) {
+			// minute
+			case in_array($range, ['m', 'minute']):
+				$from->startOfMinute();
+				break;
+			// hour
+			case in_array($range, ['h', 'hour']):
+				$dt->startOfHour();
+				break;
 			// today
 			case in_array($range, ['day', 'today', 'start of day', 'morning']):
 				$dt->startOfDay();
@@ -563,7 +581,13 @@ class Dt extends Carbon
 	public static function getBoundaries($range, $returnObject = false, $time = null, $timezone = null)
 	{
 
-		$dt = new Dt($time, $timezone);
+		// custom time
+		if (is_numeric($time) && $time > 0) {
+			$dt = new Dt((float)$time, $timezone);
+		// now
+		} else {
+			$dt = new Dt($time, $timezone);
+		}
 
 		if (!$dt) {
 			return false;
@@ -579,7 +603,7 @@ class Dt extends Carbon
 			// default
 			default:
 				return false;
-				
+
 
 			// minute
 			case in_array($range, ['m', 'minute']):

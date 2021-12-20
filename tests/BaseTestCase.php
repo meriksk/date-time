@@ -24,6 +24,11 @@ abstract class BaseTestCase extends TestCase
  	/**
      * @var DateTime UTC timezone
      */
+	protected $TIMESTAMP_2021_12_31_143000;
+
+ 	/**
+     * @var DateTime UTC timezone
+     */
 	protected $DATETIME_2021_12_31_143000_UTC;
 
  	/**
@@ -43,6 +48,8 @@ abstract class BaseTestCase extends TestCase
         $this->default_timezone = date_default_timezone_get();
 
 		// set test date
+		$this->TIMESTAMP_2021_12_31_143000 = 1640957400;
+
 		$this->DATETIME_2021_12_31_143000_UTC = new DateTime();
 		$this->DATETIME_2021_12_31_143000_UTC->setTimezone(new DateTimeZone('UTC'));
 		$this->DATETIME_2021_12_31_143000_UTC->setDate(2021, 12, 31)->setTime(14, 30, 00);
