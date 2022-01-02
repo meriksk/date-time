@@ -750,22 +750,45 @@ class Dt extends Carbon
 	 * @param string $interval
 	 * @param int|float $value the $value count passed in
 	 * @param bool $returnObject
-	 * @param int|\DateTime $time Start time
+	 * @param int|\DateTime $baseTime Start time
 	 * @param string $timezone 
 	 * @return boolean|\meriksk\DateTime\Dt
 	 * @throws InvalidIntervalException
 	 */
-	public static function getRelativeTime($interval, $value = 1, $returnObject = false, $time = null, $timezone = null)
+	public static function getRelativeTime($interval, $value = 1, $returnObject = false, $baseTime = null, $timezone = null)
 	{
+		$b = self::getRelativeTimeBoundaries($interval, $value, $returnObject, $baseTime, $timezone);
+		return $b[0];
+	}
+	
+	
+	/**
+	 * Get relative time
+	 * @param string $interval
+	 * @param int|float $value the $value count passed in
+	 * @param bool $returnObject
+	 * @param int|\DateTime $baseTime Start time
+	 * @param string $timezone 
+	 * @return boolean|\meriksk\DateTime\Dt[]
+	 * @throws InvalidIntervalException
+	 */
+	public static function getRelativeTimeBoundaries($interval, $value = 1, $returnObject = false, $baseTime = null, $timezone = null)
+	{
+		
+		$dt0 = null;
+		$dt1 = null;
+		
 		// custom time
-		if (is_numeric($time) && $time > 0) {
-			$dt = new Dt((float)$time, $timezone);
+		if (is_numeric($baseTime) && $baseTime > 0) {
+			$dt0 = new Dt((float)$baseTime, $timezone);
+			$dt1 = new Dt((float)$baseTime, $timezone);
 		// now
 		} else {
-			$dt = new Dt($time, $timezone);
+			$dt0 = new Dt($baseTime, $timezone);
+			$dt1 = new Dt($baseTime, $timezone);
 		}
 
-		if (!$dt) {
+		if (!$dt0) {
 			return false;
 		}
 		
@@ -774,50 +797,50 @@ class Dt extends Carbon
 			case 's':
 			case 'second':
 			case 'seconds':
-				$dt->subSeconds($value);
+				$dt0->subSeconds($value);
 				break;
 			// minute
 			case 'm':
 			case 'minute':
 			case 'minutes':
-				$dt->subMinutes($value);
+				$dt0->subMinutes($value);
 				break;
 			// hour
 			case 'h':
 			case 'hour':
 			case 'hours':
-				$dt->subHours($value);
+				$dt0->subHours($value);
 				break;
 			// day
 			case 'd':
 			case 'day':
 			case 'days':
-				$dt->subDays($value);
+				$dt0->subDays($value);
 				break;			
 			// week
 			case 'w':
 			case 'week':
 			case 'weeks':
-				$dt->subWeeks($value);
+				$dt0->subWeeks($value);
 				break;			
 			// month
 			case 'mo':
 			case 'month':
 			case 'months':
-				$dt->subMonths((int)$value);
+				$dt0->subMonths((int)$value);
 				break;
 			// year
 			case 'y':
 			case 'year':
 			case 'years':
-				$dt->subYears((int)$value);
+				$dt0->subYears((int)$value);
 				break;
 			default:
 				throw new InvalidIntervalException(sprintf('Invalid interval definition: %s', $interval));
 		}
 
 		// return
-		return $returnObject===true ? $dt : $returnObject->getTimestamp();
+		return $returnObject===true ? [$dt0, $dt1] : [$dt0->getTimestamp(), $dt1->getTimestamp()];
 	}
 
 	private static function isRelativeInterval($datetime)
