@@ -307,6 +307,36 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('2022-12-31 23:59:59', $b[1]->toDateTimeString()); // end of year
     }
 
+    public function testGetRelativeTime()
+    {
+		// 2021-12-31 14:30:00
+		$dt = clone $this->DATETIME_2021_12_31_143000_UTC;
+		$ts = $dt->getTimestamp();
+
+		
+		$rt = Dt::getRelativeTime('minute', 1, true, $dt);
+		$this->assertEquals('2021-12-31 14:29:00', $rt->toDateTimeString());
+		
+		$rt = Dt::getRelativeTime('hour', 1, true, $dt);
+		$this->assertEquals('2021-12-31 13:30:00', $rt->toDateTimeString());
+				
+		$rt = Dt::getRelativeTime('day', 1, true, $dt);
+		$this->assertEquals('2021-12-30 14:30:00', $rt->toDateTimeString());
+				
+		$rt = Dt::getRelativeTime('week', 1, true, $dt);
+		$this->assertEquals('2021-12-24 14:30:00', $rt->toDateTimeString());
+				
+		$rt = Dt::getRelativeTime('month', 1, true, $dt);
+		$this->assertEquals('2021-12-01 14:30:00', $rt->toDateTimeString());
+
+		$rt = Dt::getRelativeTime('year', 1, true, $dt);
+		$this->assertEquals('2020-12-31 14:30:00', $rt->toDateTimeString());
+		
+		// timezone
+		$rt = Dt::getRelativeTime('minute', 1, true, $dt, 'Europe/Bratislava');
+		$this->assertEquals('2021-12-31 15:29:00', $rt->toDateTimeString());
+	}
+	
 	public function testSecondsToWords()
 	{
 		$this->assertEquals('1s', Dt::secondsToWords(1));
