@@ -441,121 +441,252 @@ class Dt extends Carbon
 
 	/**
 	 * Calculate boundaries for given timeframe.
-	 * @param string $interval
+	 * @param string $period
 	 *
 	 * Possible parameters:<br>
+	 * 's', 'second'<br>
 	 * 'm', 'minute'<br>
 	 * 'h', 'hour'<br>
-	 * 'day', 'today', 'start of day', 'morning'<br>
+	 * 'd', 'day', 'today', 'start of day', 'morning'<br>
 	 * 'midnight', 'today midnight', 'end of day'<br>
 	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
 	 * '+1d', '+1 day', 'tomorrow', 'next day'<br>
-	 * 'week', 'this week', 'current week', 'start of week'<br>
+	 * 'w', 'week', 'this week', 'current week', 'start of week'<br>
 	 * 'end of week'<br>
 	 * '-1w', '-1 week', 'previous week', 'week ago', 'one week ago'<br>
 	 * '+1w', '+1 week', 'next week'<br>
-	 * 'month', 'this month', 'current month', 'start of month'<br>
-	 * '-1m', '-1 month', '1 month ago', 'month ago', 'one month ago'<br>
-	 * '+1m', '+1 month', 'next month'<br>
-	 * 'year', 'this year', 'current year', 'start of year'<br>
+	 * 'mo', 'month', 'this month', 'current month', 'start of month'<br>
+	 * '-1mo', '-1 month', '1 month ago', 'month ago', 'one month ago'<br>
+	 * '+1mo', '+1 month', 'next month'<br>
+	 * 'y', 'year', 'this year', 'current year', 'start of year'<br>
 	 * '-1y', '-1 year', 'previous year', 'year ago', 'one year ago'<br>
 	 * '+1y', '+1 year', 'next year'<br>
 	 *
-	 * @param string $timezone
-	 * @param int|\DateTime $time
+	 * @param bool $returnObject
+	 * @param int|\DateTime $baseTime Base time
 	 * @return DateTime object
-	 * @link https://gist.github.com/sepehr/6351425
+	 * @param string $timezone
+	 * @throws \InvalidArgumentException
 	 */
-	public static function getTime($interval, $time = null, $timezone = null)
+	public static function getTime($period, $returnObject = true, $baseTime = null, $timezone = null)
 	{
+		// custom time
+		if (is_numeric($baseTime) && $baseTime > 0) {
+			$dt = new Dt((float)$baseTime, $timezone);
+		// now
+		} else {
+			$dt = new Dt($baseTime, $timezone);
+		}
 
+		if (!$dt) {
+			return false;
+		}
+
+		switch ($period) {
+			// seconds
+			case 's':
+			case 'second':
+				$dt->startOfSecond();
+				break;
+			// minutes
+			case 'm':
+			case 'minute':
+				$dt->startOfMinute();
+				break;
+			// hours
+			case 'h':
+			case 'hour':
+				$dt->startOfHour();
+				break;
+			// today
+			case 'd':
+			case 'day':
+			case 'today':
+			case 'morning':
+			case 'start of day':
+				$dt->startOfDay();
+				break;
+			// today midnight
+			case 'midnight':
+			case 'today midnight':
+			case 'end of day':
+				$dt->endOfDay();
+				break;
+			// yesterday
+			case '-1d':
+			case '-1 day':
+			case 'day ago':
+			case '1 day ago':
+			case 'yesterday':
+			case 'previous day':
+				$dt->subDay()->startOfDay();
+				break;
+			// tomorrow
+			case '+1d':
+			case '+1 day':
+			case 'tomorrow':
+			case 'next day':
+				$dt->addDay()->startOfDay();
+				break;
+			// this week
+			case 'w':
+			case 'week':
+			case 'this week':
+			case 'current week':
+			case 'start of week':
+				$dt->startOfWeek();
+				break;
+			// end of this week
+			case 'end of week':
+				$dt->endOfWeek();
+				break;
+			// previous week
+			case '-1w':
+			case '-1 week':
+			case 'previous week':
+			case 'week ago':
+			case 'one week ago':
+				$dt->subWeek()->startOfWeek();
+				break;
+			// next week
+			case '+1w':
+			case '+1 week':
+			case 'next week':
+				$dt->addWeek()->startOfWeek();
+				break;
+			// month
+			case 'mo':
+			case 'month':
+			case 'this month':
+			case 'current month':
+			case 'start of month':
+				$dt->startOfMonth();
+				break;
+			// previous month
+			case '-1mo':
+			case '-1 month':
+			case '1 month ago':
+			case 'month ago':
+			case 'one month ago':
+				$dt->subMonthsWithNoOverflow()->startOfMonth();
+				break;
+			// next month
+			case '+1mo':
+			case '+1 month':
+			case 'next month':
+				$dt->addMonthNoOverflow()->startOfMonth();
+				break;
+			// year
+			case 'y':
+			case 'year':
+			case 'this year':
+			case 'current year':
+			case 'start of year':
+				$dt->startOfYear();
+				break;
+			// previous year
+			case '-1y':
+			case '-1 year':
+			case 'previous year':
+			case 'year ago':
+			case 'one year ago':
+				$dt->subYearWithNoOverflow()->startOfYear();
+				break;
+			// next year
+			case '+1y':
+			case '+1 year':
+			case 'next year':
+				$dt->addYearWithNoOverflow()->startOfYear();
+				break;
+			default:
+				throw new \InvalidArgumentException(sprintf('Invalid period definition: %s', $period));
+		}
+
+		// return
+		return $returnObject===true ? $dt : $dt->getTimestamp();
+	}
+
+	/**
+	 * Get relative time
+	 * @param string $period
+	 * @param int|float $value the $value count passed in
+	 * @param bool $returnObject
+	 * @param int|\DateTime $time Start time
+	 * @param string $timezone
+	 * @return int|\meriksk\DateTime\Dt
+	 */
+	public static function getRelativeTime($period, $value = 1, $returnObject = true, $time = null, $timezone = null)
+	{
 		// custom time
 		if (is_numeric($time) && $time > 0) {
-			$dt = new Dt((int)$time, $timezone);
+			$dt = new Dt((float)$time, $timezone);
 		// now
 		} else {
 			$dt = new Dt($time, $timezone);
 		}
 
-		switch ($interval) {
+		if (!$dt) {
+			return false;
+		}
+
+		switch ($period) {
+			// second
+			case 's':
+			case 'second':
+			case 'seconds':
+				$dt->subSeconds($value);
+				break;
 			// minute
-			case in_array($interval, ['m', 'minute']):
-				$dt->startOfMinute();
+			case 'm':
+			case 'minute':
+			case 'minutes':
+				$dt->subMinutes($value);
 				break;
 			// hour
-			case in_array($interval, ['h', 'hour']):
-				$dt->startOfHour();
+			case 'h':
+			case 'hour':
+			case 'hours':
+				$dt->subHours($value);
 				break;
-			// today
-			case in_array($interval, ['day', 'today', 'start of day', 'morning']):
-				$dt->startOfDay();
+			// day
+			case 'd':
+			case 'day':
+			case 'days':
+				$dt->subDays($value);
 				break;
-			// today midnight
-			case in_array($interval, ['midnight', 'today midnight', 'end of day']):
-				$dt->endOfDay();
-				break;
-			// yesterday
-			case in_array($interval, ['-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day']):
-				$dt->subDay()->startOfDay();
-				break;
-			// tomorrow
-			case in_array($interval, ['+1d', '+1 day', 'tomorrow', 'next day']):
-				$dt->addDay()->startOfDay();
-				break;
-			// this week
-			case in_array($interval, ['week', 'this week', 'current week', 'start of week']):
-				$dt->startOfWeek();
-				break;
-			// end of this week
-			case in_array($interval, ['end of week']):
-				$dt->endOfWeek();
-				break;
-			// previous week
-			case in_array($interval, ['-1w', '-1 week', 'previous week', 'week ago', 'one week ago']):
-				$dt->subWeek()->startOfWeek();
-				break;
-			// next week
-			case in_array($interval, ['+1w', '+1 week', 'next week']):
-				$dt->addWeek()->startOfWeek();
+			// week
+			case 'w':
+			case 'week':
+			case 'weeks':
+				$dt->subWeeks($value);
 				break;
 			// month
-			case in_array($interval, ['month', 'this month', 'current month', 'start of month']):
-				$dt->startOfMonth();
-				break;
-			// previous month
-			case in_array($interval, ['-1m', '-1 month', '1 month ago', 'month ago', 'one month ago']):
-				$dt->subMonthsWithNoOverflow()->startOfMonth();
-				break;
-			// next month
-			case in_array($interval, ['+1m', '+1 month', 'next month']):
-				$dt->addMonthNoOverflow()->startOfMonth();
+			case 'mo':
+			case 'month':
+			case 'months':
+				$dt->subMonths((int)$value);
 				break;
 			// year
-			case in_array($interval, ['year', 'this year', 'current year', 'start of year']):
-				$dt->startOfYear();
-				break;
-			// previous year
-			case in_array($interval, ['-1y', '-1 year', 'previous year', 'year ago', 'one year ago']):
-				$dt->subYearWithNoOverflow()->startOfYear();
-				break;
-			// next year
-			case in_array($interval, ['+1y', '+1 year', 'next year']):
-				$dt->addYearWithNoOverflow()->startOfYear();
+			case 'y':
+			case 'year':
+			case 'years':
+				$dt->subYears((int)$value);
 				break;
 			// default modifier
 			default:
-				$dt->modify($interval);
+				$dt->modify($period);
 		}
 
 		// return
-		return $dt;
+		return $returnObject===true ? $dt : $returnObject->getTimestamp();
 	}
 
 	/**
 	 * Calculate boundaries for given timeframe.
-	 * @param string $interval
+	 * @param string $period
 	 *
 	 * Possible parameters:<br>
+	 * 's', 'second'<br>
 	 * 'm', 'minute'<br>
 	 * 'h', 'hour'<br>
 	 * 'd', 'day', 'today'<br>
@@ -571,63 +702,47 @@ class Dt extends Carbon
 	 * '-1y', '-1 year', 'previous year', 'year ago', 'one year ago'<br>
 	 * '+1y', '+1 year', 'next year'<br>
 	 *
-	 * @param bool $returnObject 
-	 * @param int|\DateTime $time
-	 * @param string $timezone 
+	 * @param bool $returnObject
+	 * @param int|\DateTime $baseTime
+	 * @param string $timezone
 	 * @return bool|array
 	 * @throws \Exception
 	 * @link https://gist.github.com/sepehr/6351425
 	 */
-	public static function getBoundaries($interval, $returnObject = false, $time = null, $timezone = null)
+	public static function getBoundaries($period, $returnObject = false, $baseTime = null, $timezone = null)
 	{
 
-		// custom time
-		if (is_numeric($time) && $time > 0) {
-			$dt = new Dt((float)$time, $timezone);
-		// now
-		} else {
-			$dt = new Dt($time, $timezone);
-		}
+		$dt0 = self::getTime($period, $returnObject, $baseTime, $timezone);
+		$dt1 = clone $dt0;
 
-		if (!$dt) {
+		if (!$dt0) {
 			return false;
 		}
 
-		//if ($timezone) { $dt->setTimezone($timezone); }
-
-		$from = clone $dt;
-		$to = clone $dt;
-
-		switch ($interval) {
-
-			// default
-			default:
-				return false;
-
-			// minute
+		switch ($period) {
+			// seconds
+			case 's':
+			case 'second':
+				$dt1->endOfSecond();
+				break;
+			// minutes
 			case 'm':
 			case 'minute':
-			case 'minutes':
-				$from->startOfMinute();
-				$to->endOfMinute();
+				$dt1->endOfMinute();
 				break;
-
-			// hour
+			// hours
 			case 'h':
 			case 'hour':
-			case 'hours':
-				$from->startOfHour();
-				$to->endOfHour();
+				$dt1->endOfHour();
 				break;
-
-			// day
+			// today
 			case 'd':
 			case 'day':
 			case 'today':
-				$from->startOfDay();
-				$to->endOfDay();
+			case 'morning':
+			case 'start of day':
+				$dt1->endOfDay();
 				break;
-
 			// yesterday
 			case '-1d':
 			case '-1 day':
@@ -635,232 +750,118 @@ class Dt extends Carbon
 			case '1 day ago':
 			case 'yesterday':
 			case 'previous day':
-				$from->subDay()->startOfDay();
-				$to->subDay()->endOfDay();
+				$dt1->endOfDay();
 				break;
-
 			// tomorrow
 			case '+1d':
 			case '+1 day':
 			case 'tomorrow':
 			case 'next day':
-				$from->addDay()->startOfDay();
-				$to->addDay()->endOfDay();
+				$dt1->endOfDay();
 				break;
-
 			// this week
 			case 'w':
 			case 'week':
 			case 'this week':
 			case 'current week':
-				$from->startOfWeek();
-				$to->endOfWeek();
+			case 'start of week':
+				$dt1->endOfWeek();
 				break;
-
 			// previous week
 			case '-1w':
 			case '-1 week':
 			case 'previous week':
 			case 'week ago':
 			case 'one week ago':
-				$from->subWeek()->startOfWeek();
-				$to->subWeek()->endOfWeek();
+				$dt1->endOfWeek();
 				break;
-
 			// next week
 			case '+1w':
 			case '+1 week':
 			case 'next week':
-				$from->addWeek()->startOfWeek();
-				$to->addWeek()->endOfWeek();
+				$dt1->endOfWeek();
 				break;
-
 			// month
 			case 'mo':
 			case 'month':
 			case 'this month':
 			case 'current month':
-				$from->startOfMonth();
-				$to->endOfMonth();
+			case 'start of month':
+				$dt1->endOfMonth();
 				break;
-
 			// previous month
 			case '-1mo':
 			case '-1 month':
 			case '1 month ago':
 			case 'month ago':
 			case 'one month ago':
-				$from->subMonthsWithNoOverflow()->startOfMonth();
-				$to->subMonthsWithNoOverflow()->endOfMonth();
+				$dt1->endOfMonth();
 				break;
-
 			// next month
 			case '+1mo':
 			case '+1 month':
 			case 'next month':
-				$from->addMonthNoOverflow()->startOfMonth();
-				$to->addMonthNoOverflow()->endOfMonth();
+				$dt1->endOfMonth();
 				break;
-
 			// year
 			case 'y':
 			case 'year':
 			case 'this year':
 			case 'current year':
-				$from->startOfYear();
-				$to->endOfYear();
+			case 'start of year':
+				$dt1->endOfYear();
 				break;
-
 			// previous year
 			case '-1y':
 			case '-1 year':
 			case 'previous year':
 			case 'year ago':
 			case 'one year ago':
-				$from->subYearWithNoOverflow()->startOfYear();
-				$to->subYearWithNoOverflow()->endOfYear();
+				$dt1->endOfYear();
 				break;
-
 			// next year
 			case '+1y':
 			case '+1 year':
 			case 'next year':
-				$from->addYearWithNoOverflow()->startOfYear();
-				$to->addYearWithNoOverflow()->endOfYear();
-				break;
-		}
-
-		// return
-		return $returnObject===true ? [$from, $to] : [$from->getTimestamp(), $to->getTimestamp()];
-	}
-
-	/**
-	 * Returns date and time boundaries
-	 * @param string $interval
-	 * @param bool $returnObject
-	 * @return array
-	 */
-	public function boundaries($interval, $returnObject = false)
-	{
-		return self::getBoundaries($interval, $returnObject, $this->getTimestamp(), $this->getTimezone());
-	}
-	
-	/**
-	 * Get relative time
-	 * @param string $interval
-	 * @param bool $returnObject
-	 * @param int|float $value the $value count passed in
-	 * @param int|\DateTime $baseTime Start time
-	 * @param string $timezone 
-	 * @return boolean|\meriksk\DateTime\Dt
-	 * @throws InvalidIntervalException
-	 */
-	public static function getRelativeTime($interval, $returnObject = true, $value = 1, $baseTime = null, $timezone = null)
-	{
-		$b = self::getRelativeTimeBoundaries($interval, $returnObject, $value, $baseTime, $timezone);
-		return $b[0];
-	}
-	
-	
-	/**
-	 * Get relative time
-	 * @param string $interval
-	 * @param bool $returnObject
-	 * @param int|float $value the $value count passed in
-	 * @param int|\DateTime $baseTime Start time
-	 * @param string $timezone 
-	 * @return boolean|\meriksk\DateTime\Dt[]
-	 * @throws InvalidIntervalException
-	 */
-	public static function getRelativeTimeBoundaries($interval, $returnObject = true, $value = 1, $baseTime = null, $timezone = null)
-	{
-		
-		$dt0 = null;
-		$dt1 = null;
-		
-		// custom time
-		if (is_numeric($baseTime) && $baseTime > 0) {
-			$dt0 = new Dt((float)$baseTime, $timezone);
-			$dt1 = new Dt((float)$baseTime, $timezone);
-		// now
-		} else {
-			$dt0 = new Dt($baseTime, $timezone);
-			$dt1 = new Dt($baseTime, $timezone);
-		}
-
-		if (!$dt0) {
-			return false;
-		}
-		
-		switch ($interval) {
-			// second
-			case 's':
-			case 'second':
-			case 'seconds':
-				$dt0->subSeconds($value);
-				break;
-			// minute
-			case 'm':
-			case 'minute':
-			case 'minutes':
-				$dt0->subMinutes($value);
-				break;
-			// hour
-			case 'h':
-			case 'hour':
-			case 'hours':
-				$dt0->subHours($value);
-				break;
-			// day
-			case 'd':
-			case 'day':
-			case 'days':
-				$dt0->subDays($value);
-				break;			
-			// week
-			case 'w':
-			case 'week':
-			case 'weeks':
-				$dt0->subWeeks($value);
-				break;			
-			// month
-			case 'mo':
-			case 'month':
-			case 'months':
-				$dt0->subMonths((int)$value);
-				break;
-			// year
-			case 'y':
-			case 'year':
-			case 'years':
-				$dt0->subYears((int)$value);
+				$dt1->endOfYear();
 				break;
 			default:
-				throw new InvalidIntervalException(sprintf('Invalid interval definition: %s', $interval));
+				throw new \InvalidArgumentException(sprintf('Invalid period definition: %s', $period));
 		}
 
 		// return
 		return $returnObject===true ? [$dt0, $dt1] : [$dt0->getTimestamp(), $dt1->getTimestamp()];
 	}
 
-	private static function isRelativeInterval($datetime)
+	/**
+	 * Get relative time
+	 * @param string $period
+	 * @param bool $returnObject
+	 * @param int|float $value the $value count passed in
+	 * @param int|\DateTime $baseTime Start time
+	 * @param string $timezone
+	 * @return boolean|\meriksk\DateTime\Dt[]
+	 * @throws InvalidIntervalException
+	 */
+	public static function getRelativeTimeBoundaries($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
 	{
-		return $datetime && in_array($datetime, [
-			'm', 'minute',
-			'h', 'hour',
-			'day', 'today',
-			'-1d', 'yesterday', 'day ago', 'one day ago', 'previous day',
-			'+1d', 'tomorrow', 'next day',
-			'week', 'this week', 'current week',
-			'-1w', 'previous week', 'week ago', 'one week ago',
-			'+1w', 'next week',
-			'month', 'this month', 'current month',
-			'-1m', 'month ago', 'one month ago', 'previous month',
-			'+1m', 'next month',
-			'year', 'this year', 'current year',
-			'-1y', 'year ago', 'one year ago', 'previous year',
-			'+1y', 'next year',
-		]);
+		$dt0 = self::getRelativeTime($period, $value, $returnObject, $baseTime, $timezone);
+		$dt1 = null;
+
+		// custom time
+		if (is_numeric($baseTime) && $baseTime > 0) {
+			$dt1 = new Dt((float)$baseTime, $timezone);
+		// now
+		} else {
+			$dt1 = new Dt($baseTime, $timezone);
+		}
+
+		if (!$dt0) {
+			return false;
+		}
+
+		// return
+		return $returnObject===true ? [$dt0, $dt1] : [$dt0->getTimestamp(), $dt1->getTimestamp()];
 	}
 
 	/**

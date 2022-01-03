@@ -24,50 +24,57 @@ abstract class BaseTestCase extends TestCase
  	/**
      * @var DateTime UTC timezone
      */
-	protected $TIMESTAMP_2021_12_31_143000;
+	protected static $TIMESTAMP_2021_12_31_143000;
 
  	/**
      * @var DateTime UTC timezone
      */
-	protected $DATETIME_2021_12_31_143000_UTC;
+	protected static $DATETIME_2021_12_31_143000;
 
  	/**
      * @var DateTime UTC timezone
      */
-	protected $DATETIME_2021_12_31_143000_EU_BRATISLAVA;
+	protected static $DATETIME_2021_12_31_143000_EU_BRATISLAVA;
 	
     /**
      * @var string
      */
-    protected $default_timezone;
+    protected static $default_timezone;
 
 
-    protected function setUp()
+    public static function setUpBeforeClass()
     {
         // save current timezone
-        $this->default_timezone = date_default_timezone_get();
+        self::$default_timezone = date_default_timezone_get();
+		
+		// reset timezone
+		date_default_timezone_set('UTC');
 
 		// set test date
-		$this->TIMESTAMP_2021_12_31_143000 = 1640957400;
+		self::$TIMESTAMP_2021_12_31_143000 = 1640961000;
 
-		$this->DATETIME_2021_12_31_143000_UTC = new DateTime();
-		$this->DATETIME_2021_12_31_143000_UTC->setTimezone(new DateTimeZone('UTC'));
-		$this->DATETIME_2021_12_31_143000_UTC->setDate(2021, 12, 31)->setTime(14, 30, 00);
+		self::$DATETIME_2021_12_31_143000 = new Dt();
+		self::$DATETIME_2021_12_31_143000->setDate(2021, 12, 31)->setTime(14, 30, 0);
 
-		$this->DATETIME_2021_12_31_143000_EU_BRATISLAVA = new DateTime();
-		$this->DATETIME_2021_12_31_143000_EU_BRATISLAVA->setTimezone(new DateTimeZone('Europe/Bratislava'));
-		$this->DATETIME_2021_12_31_143000_EU_BRATISLAVA->setDate(2021, 12, 31)->setTime(14, 30, 00);
+		self::$DATETIME_2021_12_31_143000_EU_BRATISLAVA = new Dt();
+		self::$DATETIME_2021_12_31_143000_EU_BRATISLAVA->setTimezone(new DateTimeZone('Europe/Bratislava'));
+		self::$DATETIME_2021_12_31_143000_EU_BRATISLAVA->setDate(2021, 12, 31)->setTime(14, 30, 00);
     }
+	
+	public static function tearDownAfterClass()
+	{
+		date_default_timezone_set(self::$default_timezone);
+	}
 
     protected function tearDown()
     {
-        //date_default_timezone_set($this->default_timezone);
-		//$this->dt = NULL;
+        //date_default_timezone_set(self::$default_timezone);
+		//self::$dt = NULL;
     }
 	
 	public function getDefaultTimezone()
 	{
-		return $this->default_timezone;
+		return self::$default_timezone;
 	}
 	
 	
