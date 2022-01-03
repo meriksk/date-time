@@ -678,7 +678,7 @@ class Dt extends Carbon
 		}
 
 		// return
-		return $returnObject===true ? $dt : $returnObject->getTimestamp();
+		return $returnObject===true ? $dt : $dt->getTimestamp();
 	}
 
 	/**
