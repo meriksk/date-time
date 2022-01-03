@@ -845,7 +845,7 @@ class Dt extends Carbon
 	 */
 	public static function getRelativeTimeBoundaries($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
 	{
-		$dt0 = self::getRelativeTime($period, $value, $returnObject, $baseTime, $timezone);
+		$dt0 = self::getRelativeTime($period, $value, true, $baseTime, $timezone);
 		$dt1 = null;
 
 		// custom time
