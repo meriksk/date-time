@@ -748,16 +748,16 @@ class Dt extends Carbon
 	/**
 	 * Get relative time
 	 * @param string $interval
-	 * @param int|float $value the $value count passed in
 	 * @param bool $returnObject
+	 * @param int|float $value the $value count passed in
 	 * @param int|\DateTime $baseTime Start time
 	 * @param string $timezone 
 	 * @return boolean|\meriksk\DateTime\Dt
 	 * @throws InvalidIntervalException
 	 */
-	public static function getRelativeTime($interval, $value = 1, $returnObject = false, $baseTime = null, $timezone = null)
+	public static function getRelativeTime($interval, $returnObject = true, $value = 1, $baseTime = null, $timezone = null)
 	{
-		$b = self::getRelativeTimeBoundaries($interval, $value, $returnObject, $baseTime, $timezone);
+		$b = self::getRelativeTimeBoundaries($interval, $returnObject, $value, $baseTime, $timezone);
 		return $b[0];
 	}
 	
@@ -765,14 +765,14 @@ class Dt extends Carbon
 	/**
 	 * Get relative time
 	 * @param string $interval
-	 * @param int|float $value the $value count passed in
 	 * @param bool $returnObject
+	 * @param int|float $value the $value count passed in
 	 * @param int|\DateTime $baseTime Start time
 	 * @param string $timezone 
 	 * @return boolean|\meriksk\DateTime\Dt[]
 	 * @throws InvalidIntervalException
 	 */
-	public static function getRelativeTimeBoundaries($interval, $value = 1, $returnObject = false, $baseTime = null, $timezone = null)
+	public static function getRelativeTimeBoundaries($interval, $returnObject = true, $value = 1, $baseTime = null, $timezone = null)
 	{
 		
 		$dt0 = null;

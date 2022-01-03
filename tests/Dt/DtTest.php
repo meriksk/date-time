@@ -312,26 +312,26 @@ class DateTimeTest extends BaseTestCase
 		// 2021-12-31 14:30:00
 		$dt = clone $this->DATETIME_2021_12_31_143000_UTC;
 		
-		$rt = Dt::getRelativeTime('minute', 1, true, $dt);
+		$rt = Dt::getRelativeTime('minute', true, 1, $dt);
 		$this->assertEquals('2021-12-31 14:29:00', $rt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('hour', 1, true, $dt);
+		$rt = Dt::getRelativeTime('hour', true, 1, $dt);
 		$this->assertEquals('2021-12-31 13:30:00', $rt->toDateTimeString());
 				
-		$rt = Dt::getRelativeTime('day', 1, true, $dt);
+		$rt = Dt::getRelativeTime('day', true, 1, $dt);
 		$this->assertEquals('2021-12-30 14:30:00', $rt->toDateTimeString());
 				
-		$rt = Dt::getRelativeTime('week', 1, true, $dt);
+		$rt = Dt::getRelativeTime('week', true, 1, $dt);
 		$this->assertEquals('2021-12-24 14:30:00', $rt->toDateTimeString());
 				
-		$rt = Dt::getRelativeTime('month', 1, true, $dt);
+		$rt = Dt::getRelativeTime('month', true, 1, $dt);
 		$this->assertEquals('2021-12-01 14:30:00', $rt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('year', 1, true, $dt);
+		$rt = Dt::getRelativeTime('year', true, 1, $dt);
 		$this->assertEquals('2020-12-31 14:30:00', $rt->toDateTimeString());
 		
 		// timezone
-		$rt = Dt::getRelativeTime('minute', 1, true, $dt, 'Europe/Bratislava');
+		$rt = Dt::getRelativeTime('minute', true, 1, $dt, 'Europe/Bratislava');
 		$this->assertEquals('2021-12-31 15:29:00', $rt->toDateTimeString());
 	}
 	
@@ -340,32 +340,32 @@ class DateTimeTest extends BaseTestCase
 		// 2021-12-31 14:30:00
 		$dt = clone $this->DATETIME_2021_12_31_143000_UTC;
 		
-		$b = Dt::getRelativeTimeBoundaries('minute', 1, true, $dt);
+		$b = Dt::getRelativeTimeBoundaries('minute', true, 1, $dt);
 		$this->assertEquals('2021-12-31 14:29:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 
-		$b = Dt::getRelativeTimeBoundaries('hour', 1, true, $dt);
+		$b = Dt::getRelativeTimeBoundaries('hour', true, 1, $dt);
 		$this->assertEquals('2021-12-31 13:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 				
-		$b = Dt::getRelativeTimeBoundaries('day', 1, true, $dt);
+		$b = Dt::getRelativeTimeBoundaries('day', true, 1, $dt);
 		$this->assertEquals('2021-12-30 14:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 				
-		$b = Dt::getRelativeTimeBoundaries('week', 1, true, $dt);
+		$b = Dt::getRelativeTimeBoundaries('week', true, 1, $dt);
 		$this->assertEquals('2021-12-24 14:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 				
-		$b = Dt::getRelativeTimeBoundaries('month', 1, true, $dt);
+		$b = Dt::getRelativeTimeBoundaries('month', true, 1, $dt);
 		$this->assertEquals('2021-12-01 14:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 
-		$b = Dt::getRelativeTimeBoundaries('year', 1, true, $dt);
+		$b = Dt::getRelativeTimeBoundaries('year', true, 1, $dt);
 		$this->assertEquals('2020-12-31 14:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 		
 		// timezone
-		$b = Dt::getRelativeTimeBoundaries('minute', 1, true, $dt, 'Europe/Bratislava');
+		$b = Dt::getRelativeTimeBoundaries('minute', true, 1, $dt, 'Europe/Bratislava');
 		$this->assertEquals('2021-12-31 15:29:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 15:30:00', $b[1]->toDateTimeString());
 	}
