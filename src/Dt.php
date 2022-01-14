@@ -709,10 +709,10 @@ class Dt extends Carbon
 	 * @throws \Exception
 	 * @link https://gist.github.com/sepehr/6351425
 	 */
-	public static function getBoundaries($period, $returnObject = false, $baseTime = null, $timezone = null)
+	public static function getBoundaries($period, $returnObject = true, $baseTime = null, $timezone = null)
 	{
 
-		$dt0 = self::getTime($period, $returnObject, $baseTime, $timezone);
+		$dt0 = self::getTime($period, true, $baseTime, $timezone);
 		$dt1 = clone $dt0;
 
 		if (!$dt0) {
