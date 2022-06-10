@@ -295,9 +295,11 @@ class Dt extends Carbon
 		}
 
 		$f = self::getFormat($format, self::TARGET_CARBON, $locale);
-		$dt->setLocale($locale);
+		if ($locale && is_string($locale)) {
+			$dt->setLocale($locale);
+		}
 
-		return $dt ->isoFormat($f, $format);
+		return $dt->isoFormat($f, $format);
 	}
 
 	/**
