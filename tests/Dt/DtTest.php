@@ -49,17 +49,21 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('Europe/Bratislava', $dt->getTimezone()->getName());
 		$this->assertEquals('15:30:00', $dt->format('H:i:s'));
 
-		// passed time + timezone
+		// passed time
 		$dt = new Dt('16:30');
 		$this->assertEquals('16:30:00', $dt->format('H:i:s'));
-		$dt->setTimezone('Europe/Bratislava');
-		$this->assertEquals('17:30:00', $dt->format('H:i:s'));
 
 		// timestamp
 		$dt = new Dt(self::$TIMESTAMP_2021_12_31_143000);
 		$this->assertEquals('14:30:00', $dt->format('H:i:s'));
 		$dt->setTimezone('Europe/Bratislava');
 		$this->assertEquals('15:30:00', $dt->format('H:i:s'));
+		
+		// timestamp (float)
+		$dt = new Dt(self::$TIMESTAMP_2021_12_31_143000_500);
+		$this->assertEquals('14:30:00.500000', $dt->format('H:i:s.u'));
+		$dt->setTimezone('Europe/Bratislava');
+		$this->assertEquals('15:30:00.500000', $dt->format('H:i:s.u'));
 	}
 
 	public function testCheckTimezone()
@@ -168,7 +172,7 @@ class DateTimeTest extends BaseTestCase
 
 		// sk (custom format)
 		$d = Dt::f('l, D, F, j.n.Y H:i', $ts, 'Europe/Bratislava', 'sk');
-		$this->assertEquals('piatok, pi, december, 31.12.2021 15:30', $d);
+		$this->assertEquals('piatok, pia, december, 31.12.2021 15:30', $d);
 
 		// named formats
 		$d = Dt::f('date', $ts, null, 'sk');

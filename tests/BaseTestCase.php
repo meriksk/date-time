@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace meriksk\DateTime\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -22,9 +22,14 @@ abstract class BaseTestCase extends TestCase
 	protected $dt;
 
  	/**
-     * @var DateTime UTC timezone
+     * @var Timestamp
      */
 	protected static $TIMESTAMP_2021_12_31_143000;
+	
+ 	/**
+     * @var Timestamp (float)
+     */
+	protected static $TIMESTAMP_2021_12_31_143000_500;
 
  	/**
      * @var DateTime UTC timezone
@@ -42,16 +47,25 @@ abstract class BaseTestCase extends TestCase
     protected static $default_timezone;
 
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass():void
     {
         // save current timezone
         self::$default_timezone = date_default_timezone_get();
 		
 		// reset timezone
 		date_default_timezone_set('UTC');
+		
+		// php settings
+		ini_set('memory_limit', -1);
+		ini_set('display_errors', E_ALL);
+		ini_set('log_errors_max_len', 0);
+		ini_set('zend.assertions', 1);
+		ini_set('assert.exception', 1);
+		ini_set('xdebug.show_exception_trace', 1);		
 
 		// set test date
 		self::$TIMESTAMP_2021_12_31_143000 = 1640961000;
+		self::$TIMESTAMP_2021_12_31_143000_500 = 1640961000.500;
 
 		self::$DATETIME_2021_12_31_143000 = new Dt();
 		self::$DATETIME_2021_12_31_143000->setDate(2021, 12, 31)->setTime(14, 30, 0);
@@ -61,12 +75,12 @@ abstract class BaseTestCase extends TestCase
 		self::$DATETIME_2021_12_31_143000_EU_BRATISLAVA->setDate(2021, 12, 31)->setTime(14, 30, 00);
     }
 	
-	public static function tearDownAfterClass()
+	public static function tearDownAfterClass():void
 	{
 		date_default_timezone_set(self::$default_timezone);
 	}
 
-    protected function tearDown()
+    protected function tearDown():void
     {
         //date_default_timezone_set(self::$default_timezone);
 		//self::$dt = NULL;
