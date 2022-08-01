@@ -22,7 +22,6 @@ class DateTimeTest extends BaseTestCase
 		$dt = new Dt('now', new DateTimeZone('Europe/Bratislava'));
 		$this->assertIsObject($dt);
 		$this->assertEquals('Europe/Bratislava', $dt->getTimezone()->getName());
-
 		// custom timezone (string)
 		$dt = new Dt('now', 'Europe/Bratislava');
 		$this->assertIsObject($dt);
@@ -42,8 +41,7 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('14:30:00', $dt->format('H:i:s'));
 
 		// UTC date - different timezone
-		$dt = new Dt('2021-12-31 14:30:00');		
-		$this->assertEquals('14:30:00', $dt->format('H:i:s'));
+		$dt = new Dt('2021-12-31 14:30:00');
 		$this->assertEquals('UTC', $dt->getTimezone()->getName());
 		$dt->setTimezone('Europe/Bratislava');
 		$this->assertEquals('Europe/Bratislava', $dt->getTimezone()->getName());
@@ -54,16 +52,27 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('16:30:00', $dt->format('H:i:s'));
 
 		// timestamp
+		$dt = new Dt(self::$TIMESTAMP_2021_12_31_143000, 'Europe/Bratislava');
+		$this->assertEquals('14:30:00', $dt->format('H:i:s'));
+
+		// timestamp
 		$dt = new Dt(self::$TIMESTAMP_2021_12_31_143000);
 		$this->assertEquals('14:30:00', $dt->format('H:i:s'));
 		$dt->setTimezone('Europe/Bratislava');
 		$this->assertEquals('15:30:00', $dt->format('H:i:s'));
-		
+
 		// timestamp (float)
 		$dt = new Dt(self::$TIMESTAMP_2021_12_31_143000_500);
 		$this->assertEquals('14:30:00.500000', $dt->format('H:i:s.u'));
 		$dt->setTimezone('Europe/Bratislava');
 		$this->assertEquals('15:30:00.500000', $dt->format('H:i:s.u'));
+
+		// summer time (2h diff)
+		$dt = new Dt('2021-08-15 14:30:00', 'Europe/Bratislava');
+		$this->assertEquals('Europe/Bratislava', $dt->getTimezone()->getName());
+		$this->assertEquals('2021-08-15 14:30:00', $dt->format('Y-m-d H:i:s'));
+		$dt->setTimezone('UTC');
+		$this->assertEquals('2021-08-15 12:30:00', $dt->format('Y-m-d H:i:s'));
 	}
 
 	public function testCheckTimezone()
@@ -87,6 +96,12 @@ class DateTimeTest extends BaseTestCase
 
 	public function testCreateTimestamp()
 	{
+		// default timezone
+		$ts = Dt::createTimestamp('31.12.2021 08:30:00');
+		$this->assertIsInt($ts);
+		$this->assertEquals(1640939400, $ts);
+
+		// different timezone
 		$ts = Dt::createTimestamp('31.12.2021 08:30:00', 'Europe/Bratislava');
 		$this->assertIsInt($ts);
 		$this->assertEquals(1640935800, $ts);
@@ -98,34 +113,40 @@ class DateTimeTest extends BaseTestCase
 		$f = Dt::getFormat('date_time');
 		$this->assertEquals('n/j/Y g:i:s A', $f);
 
-		// slovak locale
+		// specific locale - without conversion
 		$f = Dt::getFormat('date_time', null, 'sk');
 		$this->assertEquals('j.n.Y H:i:s', $f);
 
-		// slovak locale + convert MOMENT
-		$f = Dt::getFormat('date_time', Dt::TARGET_MOMENT, 'sk');
-		$this->assertEquals('D.M.YYYY HH:mm:ss', $f);
-
-		// slovak locale + convert YII2
-		$f = Dt::getFormat('date_time', Dt::TARGET_YII2, 'sk');
+		// specific locale - format conversion
+		$f = Dt::getFormat('date_time', Dt::TARGET_ICU, 'sk');
 		$this->assertEquals('d.M.yyyy HH:mm:ss', $f);
 
+		// specific locale + format conversion (MomentJs)
+		$f = Dt::getFormat('date_time', Dt::TARGET_MOMENT, 'sk');
+		$this->assertEquals('D.M.YYYY HH:mm:ss', $f);
 	}
 
 	public function testConvertFormat()
 	{
-		// named format (n/j/Y => M/d/yyyy)
+		// alias (PHP/ICU: n/j/Y => M/d/yyyy)
 		$f = Dt::convertFormat('date', Dt::TARGET_ICU);
 		$this->assertEquals('M/d/yyyy', $f);
 
-		// named format (sk) (j.n.Y => d.M.yyyy)
-		$f = Dt::convertFormat('date', Dt::TARGET_YII2, 'sk');
+		// alias (PHP/ICU: j.n.Y => d.M.yyyy) - sk
+		$f = Dt::convertFormat('date', Dt::TARGET_ICU, 'sk');
 		$this->assertEquals('d.M.yyyy', $f);
+
+		// alias (PHP/MOMENT: j.n.Y => d.M.yyyy) - sk
+		$f = Dt::convertFormat('date', Dt::TARGET_MOMENT, 'sk');
+		$this->assertEquals('D.M.YYYY', $f);
+
+		// custom format (PHP/MOMENT: m/d/Y H:i:s)
+		$f = Dt::convertFormat('m/d/Y H:i:s', Dt::TARGET_MOMENT);
+		$this->assertEquals('MM/DD/YYYY HH:mm:ss', $f);
 	}
 
     public function testF()
     {
-
 		// timezone (system)
 		$dt = new Dt('2021-12-31 14:30:00');
 		$ts = $dt->getTimestamp();
@@ -135,19 +156,9 @@ class DateTimeTest extends BaseTestCase
 		$ts_ba = $dt_ba->getTimestamp();
 
 		// en (default locale)
-		$d = Dt::f('date', $ts);
-		$this->assertEquals('12/31/2021', $d);
-		$d = Dt::f('date_time', $ts);
+		$d = Dt::f('date_time', $dt->getTimestamp());
 		$this->assertEquals('12/31/2021 2:30:00 PM', $d);
-		$d = Dt::f('date_time', $ts, 'Europe/Bratislava');
-		$this->assertEquals('12/31/2021 3:30:00 PM', $d);
-
-		// timestamp, utc
-		$d = Dt::f('date_time', $ts);
-		$this->assertEquals('12/31/2021 2:30:00 PM', $d);
-
-		// timestamp, Europe/Bratislava
-		$d = Dt::f('date_time', $ts, 'Europe/Bratislava');
+		$d = Dt::f('date_time', $dt->getTimestamp(), 'Europe/Bratislava');
 		$this->assertEquals('12/31/2021 3:30:00 PM', $d);
 
 		// use DateTime object, utc
@@ -162,64 +173,55 @@ class DateTimeTest extends BaseTestCase
 		$d = Dt::f('date_time', $dt_ba, 'Europe/Bratislava');
 		$this->assertEquals('12/31/2021 2:30:00 PM', $d);
 
-		// sk
-		$d = Dt::f('date', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021', $d);
+		// specific locale
 		$d = Dt::f('date_time', $ts, null, 'sk');
 		$this->assertEquals('31.12.2021 14:30:00', $d);
 		$d = Dt::f('date_time', $ts, 'Europe/Bratislava', 'sk');
 		$this->assertEquals('31.12.2021 15:30:00', $d);
 
-		// sk (custom format)
-		$d = Dt::f('l, D, F, j.n.Y H:i', $ts, 'Europe/Bratislava', 'sk');
-		$this->assertEquals('piatok, pia, december, 31.12.2021 15:30', $d);
+		// specific locale - translations - summer time
+		$d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-05-20 14:30:00'), 'Europe/Bratislava', 'sk');
+		$this->assertEquals('štvrtok, štv, máj, máj, 20.5.2021 16:30', $d);
 
-		// named formats
-		$d = Dt::f('date', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021', $d);
-		$d = Dt::f('date_short', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021', $d);
-		$d = Dt::f('date_medium', $ts, null, 'sk');
-		$this->assertEquals('31 dec 2021', $d);
-		$d = Dt::f('date_long', $ts, null, 'sk');
-		$this->assertEquals('31 december 2021', $d);
-		$d = Dt::f('date_full', $ts, null, 'sk');
-		$this->assertEquals('31 december 2021 UTC', $d);
+		// specific locale - translations - winter time
+		$d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-11-20 14:30:00'), 'Europe/Bratislava', 'de');
+		$this->assertEquals('Samstag, Sa., Nov, November, 20.11.2021 15:30', $d);
 
-		$d = Dt::f('date_time', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021 14:30:00', $d);
-		$d = Dt::f('date_time_short', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021 14:30', $d);
-		$d = Dt::f('date_time_short_tz', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021 14:30 UTC', $d);
-		$d = Dt::f('date_time_medium', $ts, null, 'sk');
-		$this->assertEquals('31. dec 2021 14:30', $d);
-		$d = Dt::f('date_time_long', $ts, null, 'sk');
-		$this->assertEquals('31. december 2021 14:30:00', $d);
-		$d = Dt::f('date_time_full', $ts, null, 'sk');
-		$this->assertEquals('31. december 2021 14:30:00 UTC', $d);
-		$d = Dt::f('date_time_tz', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021 14:30:00 UTC', $d);
-		//$d = Dt::f('date_time_ms', $ts, null, 'sk');
-		//$this->assertEquals('31.12.2021 14:30', $d);
-		$d = Dt::f('date_human', $ts, null, 'sk');
-		$this->assertEquals('31.12.2021', $d);
+		// specific locale - translations - winter time
+		$d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-11-20 14:30:00'), 'Europe/Bratislava', 'cs');
+		$this->assertEquals('sobota, sob, lis, listopadu, 20.11.2021 15:30', $d);
 
-		$d = Dt::f('time', $ts, null, 'sk');
-		$this->assertEquals('14:30:00', $d);
-		$d = Dt::f('time_short', $ts, null, 'sk');
-		$this->assertEquals('14:30', $d);
-		$d = Dt::f('time_short_tz', $ts, null, 'sk');
-		$this->assertEquals('14:30 UTC', $d);
-		$d = Dt::f('time_medium', $ts, null, 'sk');
-		$this->assertEquals('14:30:00', $d);
-		//$d = Dt::f('time_long', $ts, null, 'sk');
-		//$this->assertEquals('14:30:00.u', $d);
-		$d = Dt::f('time_full', $ts, null, 'sk');
-		$this->assertEquals('14:30:00 UTC', $d);
-		//$d = Dt::f('time_ms', $ts, null, 'sk');
-		//$this->assertEquals('14:30:00.u'', $d);
+		// specific locale - translations - winter time
+		$d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-11-20 14:30:00'), 'Europe/Bratislava', 'cs_CZ');
+		$this->assertEquals('sobota, sob, lis, listopadu, 20.11.2021 15:30', $d);
     }
+
+	public function testP()
+	{
+		// custom format
+		$dt = Dt::p('12_24_2017 14:30:00', 'n_j_Y H:i:s');
+		$this->assertIsObject($dt);
+		$this->assertEquals('2017-12-24 14:30:00', $dt->toDateTimeString());
+
+		// named format, en
+		$dt = Dt::p('12/24/2017', 'date')->setTime(14, 30, 0);
+		$this->assertIsObject($dt);
+		$this->assertEquals('2017-12-24 14:30:00', $dt->toDateTimeString());
+
+		// named format, tz, en
+		$dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/Bratislava', 'en');
+		$this->assertEquals('2017-12-24 16:30:15', $dt->toDateTimeString());
+		$this->assertEquals('Europe/Bratislava', $dt->tzName);
+
+		// named format, tz, sk
+		$dt = Dt::p('24.12.2017 16:30:15', 'date_time', 'Europe/London', 'sk');
+		$this->assertEquals('2017-12-24 16:30:15', $dt->toDateTimeString());
+		$this->assertEquals('Europe/London', $dt->tzName);
+
+		// invalid format
+		$dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/London', 'sk');
+		$this->assertFalse($dt);
+	}
 
     public function testGetTime()
     {
@@ -235,8 +237,8 @@ class DateTimeTest extends BaseTestCase
 		$dt = Dt::getTime('+1d', true, $baseDt);
 		$this->assertEquals('2022-01-01 00:00:00', $dt->toDateTimeString());
 
-		$dt = Dt::getTime('+1d', true, $baseDt);
-		$this->assertEquals('2022-01-01 00:00:00', $dt->toDateTimeString());
+		$dt = Dt::getTime('+1w', true, $baseDt);
+		$this->assertEquals('2022-01-03 00:00:00', $dt->toDateTimeString());
 
 		$dt = Dt::getTime('year', true, $baseDt);
 		$this->assertEquals('2021-01-01 00:00:00', $dt->toDateTimeString());
@@ -333,34 +335,42 @@ class DateTimeTest extends BaseTestCase
 		// test date
 		$dt = new Dt('2021-12-31 14:30:00');
 
-		$rt = Dt::getRelativeTime('minute', 1, true, $dt);
-		$this->assertEquals('2021-12-31 14:29:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('minute', 1, true, $dt);
+		$this->assertEquals('2021-12-31 14:29:00', $rdt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('hour', 1, true, $dt);
-		$this->assertEquals('2021-12-31 13:30:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('hour', 1, true, $dt);
+		$this->assertEquals('2021-12-31 13:30:00', $rdt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('day', 1, true, $dt);
-		$this->assertEquals('2021-12-30 14:30:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('day', 1, true, $dt);
+		$this->assertEquals('2021-12-30 14:30:00', $rdt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('week', 1, true, $dt);
-		$this->assertEquals('2021-12-24 14:30:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('week', 1, true, $dt);
+		$this->assertEquals('2021-12-24 14:30:00', $rdt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('month', 1, true, $dt);
-		$this->assertEquals('2021-12-01 14:30:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('month', 1, true, $dt);
+		$this->assertEquals('2021-12-01 14:30:00', $rdt->toDateTimeString());
 
-		$rt = Dt::getRelativeTime('year', 1, true, $dt);
-		$this->assertEquals('2020-12-31 14:30:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('year', 1, true, $dt);
+		$this->assertEquals('2020-12-31 14:30:00', $rdt->toDateTimeString());
 
 		// timezone
-		$rt = Dt::getRelativeTime('minute', 1, true, $dt, 'Europe/Bratislava');
-		$this->assertEquals('2021-12-31 15:29:00', $rt->toDateTimeString());
+		$rdt = Dt::getRelativeTime('minute', 1, true, $dt, 'Europe/Bratislava');
+		$this->assertEquals('2021-12-31 15:29:00', $rdt->toDateTimeString());
+
+		// more than one
+		$rdt = Dt::getRelativeTime('hour', 2, true, $dt);
+		$this->assertEquals('2021-12-31 12:30:00', $rdt->toDateTimeString());
+
+		$rdt = Dt::getRelativeTime('hour', 2, true, $dt, 'Europe/Bratislava');
+		$this->assertEquals('2021-12-31 13:30:00', $rdt->toDateTimeString());
+
 	}
 
     public function testGetRelativeTimeBoundaries()
     {
 		// test date
 		$dt = new Dt('2021-12-31 14:30:00');
-		
+
 		$b = Dt::getRelativeTimeBoundaries('minute', 1, true, $dt);
 		$this->assertEquals('2021-12-31 14:29:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
@@ -385,9 +395,18 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('2020-12-31 14:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
 
+		// more than one
+		$b = Dt::getRelativeTimeBoundaries('hour', 2, true, $dt);
+		$this->assertEquals('2021-12-31 12:30:00', $b[0]->toDateTimeString());
+		$this->assertEquals('2021-12-31 14:30:00', $b[1]->toDateTimeString());
+
 		// timezone
 		$b = Dt::getRelativeTimeBoundaries('hour', 1, true, $dt, 'Europe/Bratislava');
 		$this->assertEquals('2021-12-31 14:30:00', $b[0]->toDateTimeString());
+		$this->assertEquals('2021-12-31 15:30:00', $b[1]->toDateTimeString());
+
+		$b = Dt::getRelativeTimeBoundaries('hour', 2, true, $dt, 'Europe/Bratislava');
+		$this->assertEquals('2021-12-31 13:30:00', $b[0]->toDateTimeString());
 		$this->assertEquals('2021-12-31 15:30:00', $b[1]->toDateTimeString());
 	}
 
@@ -399,82 +418,14 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('2m 5s', Dt::secondsToWords(125));
 		$this->assertEquals('5m 30s', Dt::secondsToWords(330));
 		$this->assertEquals('1h 1m 0s', Dt::secondsToWords(3660));
-		$this->assertEquals('1h 0m 10s', Dt::secondsToWords(3610));		
+		$this->assertEquals('1h 0m 10s', Dt::secondsToWords(3610));
 	}
-	
-	public function testListDays()
+
+	public function testMysqlToUnix()
 	{
-		$d = Dt::listDays();
-		$this->assertEquals(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], $d);
-		
-		$d = Dt::listDays('narrow', 'de');
-		$this->assertEquals(['Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.', 'So.'], $d);
+		$ts = Dt::mysqlToUnix('2021-12-31 14:30:00');
+		$this->assertEquals($ts, 1640961000);
 	}
-	
-	public function testListMonths()
-	{
-		$m = Dt::listMonths();
-		$this->assertEquals([
-			1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun', 
-			7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
-		], $m);
-		
-		$m = Dt::listMonths('narrow', 'de');
-		$this->assertEquals([
-			1 => 'Jan', 2 => 'Feb', 3 => 'Mär', 4 => 'Apr', 5 => 'Mai', 6 => 'Jun', 
-			7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dez'
-		], $m);
-	}
-
-	public function testP()
-	{
-
-		// custom format
-		$dt = Dt::p('12_24_2017 14:30:00', 'n_j_Y H:i:s');
-		$this->assertIsObject($dt);
-		$this->assertEquals('2017-12-24 14:30:00', $dt->toDateTimeString());
-
-		// named format, en
-		$dt = Dt::p('12/24/2017', 'date')->setTime(14, 30, 0);
-		$this->assertIsObject($dt);
-		$this->assertEquals('2017-12-24 14:30:00', $dt->toDateTimeString());
-
-		// named format, tz, en
-		$dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/Bratislava', 'en');
-		$this->assertEquals('2017-12-24 16:30:15', $dt->toDateTimeString());
-		$this->assertEquals('Europe/Bratislava', $dt->tzName);
-
-		// named format, tz, sk
-		$dt = Dt::p('24.12.2017 16:30:15', 'date_time', 'Europe/London', 'sk');
-		$this->assertEquals('2017-12-24 16:30:15', $dt->toDateTimeString());
-		$this->assertEquals('Europe/London', $dt->tzName);
-
-		// invalid format
-		$dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/London', 'sk');
-		$this->assertFalse($dt);
-	}
-
-	public function testFormat()
-	{
-		$dt = Dt::p('12/24/2017 4:30:00 AM', 'date_time', 'UTC');
-		$this->assertEquals($dt->format('r'), 'Sun, 24 Dec 2017 04:30:00 +0000');
-	}
-
-	/*
-	public function testYear()
-	{
-		$dt = self::now();
-		$dt->year(2020);
-		$this->assertSame(2020, $dt->year);
-	}
-
-	public function testYearSetter()
-	{
-		$dt = Datetime::now();
-		$dt->year = 2020;
-		$this->assertSame(2020, $dt->year);
-	}
-	*/
 
 	public function testIsDay()
 	{
@@ -526,6 +477,60 @@ class DateTimeTest extends BaseTestCase
 		$this->assertTrue($dt2->isNight());
 		$this->assertTrue($dt3->isNight());
 		$this->assertFalse($dt4->isNight());
+	}
+
+	public function testListDays()
+	{
+		$d = Dt::listDays();
+		$this->assertEquals(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], $d);
+
+		$d = Dt::listDays('narrow', 'de');
+		$this->assertEquals(['Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.', 'So.'], $d);
+
+		$d = Dt::listDays('long', 'de');
+		$this->assertEquals(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'], $d);
+
+		$d = Dt::listDays('long', 'sk');
+		$this->assertEquals(['pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota', 'nedeľa'], $d);
+	}
+
+	public function testListMonths()
+	{
+		$m = Dt::listMonths();
+		$this->assertEquals([
+			1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun',
+			7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
+		], $m);
+
+		$m = Dt::listMonths('narrow', 'de');
+		$this->assertEquals([
+			1 => 'Jan', 2 => 'Feb', 3 => 'Mär', 4 => 'Apr', 5 => 'Mai', 6 => 'Jun',
+			7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dez'
+		], $m);
+
+		$m = Dt::listMonths('long', 'de');
+		$this->assertEquals([
+			1 => 'Januar', 2 => 'Februar', 3 => 'März', 4 => 'April', 5 => 'Mai', 6 => 'Juni',
+			7 => 'Juli', 8 => 'August', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Dezember'
+		], $m);
+	}
+
+	public function testListYears()
+	{
+		$m = Dt::listYears();		
+		$r = range(date('Y')-100, date('Y'));
+		$r = array_combine(array_values($r), array_values($r));
+		$this->assertEquals($r, $m);
+
+		$m = Dt::listYears(2000, 2010);
+		$r = range(2000, 2010);
+		$r = array_combine(array_values($r), array_values($r));
+		$this->assertEquals($r, $m);
+
+		$m = Dt::listYears(1990);
+		$r = range(1990, date('Y'));
+		$r = array_combine(array_values($r), array_values($r));
+		$this->assertEquals($r, $m);	
 	}
 
 }

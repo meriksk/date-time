@@ -2,6 +2,7 @@
 namespace meriksk\DateTime;
 
 use DateTimeZone;
+use IntlDateFormatter;
 use Carbon\Carbon;
 use InvalidArgumentException;
 
@@ -47,7 +48,7 @@ class Dt extends Carbon
 	 * Date formats [ PHP => format ]
 	 * @var array
 	 */
-	private static $convertTable = [
+	private static $conversionTable = [
 		self::TARGET_ICU => [
 			// day
 			'j'			=> 'd',		// 1 to 31
@@ -199,72 +200,73 @@ class Dt extends Carbon
 	];
 
 	/**
-	 * Get locale format definition
+	 * Get locale format aliases
 	 * @param string $locale
-	 * @param string $format
+	 * @param string $alias
 	 * @return array
 	 */
-	public static function getFormatDefinition($locale = 'en', $format = NULL)
+	public static function getFormatByAlias($alias, $locale = 'en_US')
 	{
-		$arr = [
-			'en' => [
-				'date'					=> 'n/j/Y',
-				'date_short'			=> 'n/j/Y',
-				'date_medium'			=> 'M j, Y',
-				'date_long'				=> 'F j, Y',
-				'date_full'				=> 'F j, Y',
-				'date_time'				=> 'n/j/Y g:i:s A',
-				'date_time_short'		=> 'n/j/Y g:i A',
-				'date_time_short_tz'	=> 'n/j/Y g:i A T',
-				'date_time_medium'		=> 'M j, Y g:i A',
-				'date_time_long'		=> 'F j, Y g:i:s A',
-				'date_time_full'		=> 'F j, Y g:i:s.u A T',
-				'date_time_tz'			=> 'n/j/Y g:i:s A T',
-				'date_time_ms'			=> 'n/j/Y g:i:s.u A',
-				'date_human'			=> 'D, M j',
-				'time'					=> 'g:i:s A',
-				'time_short'			=> 'g:i A',
-				'time_short_tz'			=> 'g:i A T',
-				'time_medium'			=> 'g:i:s A',
-				'time_long'				=> 'g:i:s A',
-				'time_full'				=> 'g:i:s A T',
-				'time_ms'				=> 'g:i.u A',
-			],
-			'sk' => [
-				'date'					=> 'j.n.Y',
-				'date_short'			=> 'j.n.Y',
-				'date_medium'			=> 'j M Y',
-				'date_long'				=> 'j F Y',
-				'date_full'				=> 'j F Y e',
-				'date_time'				=> 'j.n.Y H:i:s',
-				'date_time_short'		=> 'j.n.Y H:i',
-				'date_time_short_tz'	=> 'j.n.Y H:i T',
-				'date_time_medium'		=> 'j. M Y H:i',
-				'date_time_long'		=> 'j. F Y H:i:s',
-				'date_time_full'		=> 'j. F Y H:i:s T',
-				'date_time_tz'			=> 'j.n.Y H:i:s T',
-				'date_time_ms'			=> 'j.n.Y H:i:s.u',
-				'date_human'			=> 'j.n.Y',
-				'time'					=> 'H:i:s',
-				'time_short'			=> 'H:i',
-				'time_short_tz'			=> 'H:i T',
-				'time_medium'			=> 'H:i:s',
-				'time_long'				=> 'H:i:s',
-				'time_full'				=> 'H:i:s T',
-				'time_ms'				=> 'H:i:s.u',
-			],
-		];
+		$def = [];
 
-		$output = [];
-		if (isset($arr[$locale])) {
-			if($format!==NULL) {
-				$output = isset($arr[$locale][$format]) ? $arr[$locale][$format] : NULL;
-			} else {
-				$output = $arr[$locale];
-			}
-		}
+		// find aliases
+		switch (true) {
+			case in_array($locale, ['en', 'us']):
+			default:
+				$def = [
+					'date'					=> 'n/j/Y',
+					'date_short'			=> 'n/j/Y',
+					'date_medium'			=> 'M j, Y',
+					'date_long'				=> 'F j, Y',
+					'date_full'				=> 'F j, Y',
+					'date_time'				=> 'n/j/Y g:i:s A',
+					'date_time_short'		=> 'n/j/Y g:i A',
+					'date_time_short_tz'    => 'n/j/Y g:i A T',
+					'date_time_medium'		=> 'M j, Y g:i A',
+					'date_time_long'		=> 'F j, Y g:i:s A',
+					'date_time_full'		=> 'F j, Y g:i:s.u A T',
+					'date_time_tz'			=> 'n/j/Y g:i:s A T',
+					'date_time_ms'			=> 'n/j/Y g:i:s.u A',
+					'date_human'			=> 'D, M j',
+					'time'					=> 'g:i:s A',
+					'time_short'			=> 'g:i A',
+					'time_short_tz'			=> 'g:i A T',
+					'time_medium'			=> 'g:i:s A',
+					'time_long'				=> 'g:i:s A',
+					'time_full'				=> 'g:i:s A T',
+					'time_ms'				=> 'g:i.u A',
+					'xxx'					=> 'g:i.u A',
+				];
+				break;
 
-		return $output ? $output : $arr['en'];
+			case in_array($locale, ['sk', 'cs', 'da', 'de', 'es', 'fr', 'hu']):
+				$def = [
+					'date'					=> 'j.n.Y',
+					'date_short'			=> 'j.n.Y',
+					'date_medium'			=> 'j M Y',
+					'date_long'				=> 'j F Y',
+					'date_full'				=> 'j F Y e',
+					'date_time'				=> 'j.n.Y H:i:s',
+					'date_time_short'		=> 'j.n.Y H:i',
+					'date_time_short_tz'	=> 'j.n.Y H:i T',
+					'date_time_medium'		=> 'j. M Y H:i',
+					'date_time_long'		=> 'j. F Y H:i:s',
+					'date_time_full'		=> 'j. F Y H:i:s T',
+					'date_time_tz'			=> 'j.n.Y H:i:s T',
+					'date_time_ms'			=> 'j.n.Y H:i:s.u',
+					'date_human'			=> 'j.n.Y',
+					'time'					=> 'H:i:s',
+					'time_short'			=> 'H:i',
+					'time_short_tz'			=> 'H:i T',
+					'time_medium'			=> 'H:i:s',
+					'time_long'				=> 'H:i:s',
+					'time_full'				=> 'H:i:s T',
+					'time_ms'				=> 'H:i:s.u',
+				];
+				break;
+		}//switch
+
+		return $def[$alias] ?? $alias;
 	}
 
 	/**
@@ -284,22 +286,29 @@ class Dt extends Carbon
 	 * @param string $locale
 	 * @return bool|string
 	 */
-	public static function f($format, $timestamp = NULL, $timezone = NULL, $locale = NULL)
+	public static function f($format, $timestamp = null, $timezone = null, $locale = null)
 	{
 		if (is_numeric($timestamp)) {
 			$dt = static::createFromTimestamp($timestamp, $timezone);
-		} elseif (is_object($timestamp) && $timestamp instanceof \Carbon) {
-			$dt = new Dt($timestamp);
+		} elseif (is_object($timestamp) && $timestamp instanceof Dt) {
+			$dt = clone $timestamp;
+			$dt->setTimezone($timezone);
 		} else {
 			$dt = new Dt($timestamp, $timezone);
 		}
 
-		$f = self::getFormat($format, self::TARGET_CARBON, $locale);
-		if ($locale && is_string($locale)) {
-			$dt->setLocale($locale);
+		if (!$dt) {
+			return false;
 		}
 
-		return $dt->isoFormat($f, $format);
+		if ($locale && is_string($locale)) {
+			$f = self::getFormat($format, self::TARGET_MOMENT, $locale);
+			$dt->setLocale($locale);
+			return $dt->isoFormat($f, $format);
+		} else {
+			$f = self::getFormat($format);
+			return $dt->format($f);
+		}
 	}
 
 	/**
@@ -309,7 +318,7 @@ class Dt extends Carbon
 	 * @return static
 	 * @throws InvalidArgumentException
 	 */
-	public static function p($datetime, $format = NULL, $tz = NULL, $locale = NULL)
+	public static function p($datetime, $format = null, $tz = null, $locale = null)
 	{
 		// invalid date
 		if (!is_string($datetime) || empty($datetime)) {
@@ -335,38 +344,32 @@ class Dt extends Carbon
 
 	/**
 	 * Get date-time format
-	 * @param string $alias
+	 * @param string $format
 	 * @param string $targetFormat
 	 * @param string $locale
 	 * @return string
 	 */
-	public static function getFormat($alias, $targetFormat = NULL, $locale = NULL)
+	public static function getFormat($format, $targetFormat = null, $locale = null)
 	{
-		// output format
-		$f = null;
+		if (empty($format)) {
+			return null;
+		}
 
 		// set locale
-		$locale = !empty($locale) ? trim(strtolower($locale)) : self::$locale;
-
-		// get conversion table
-		$conversionTable = self::getFormatDefinition($locale);
-
-		// look for predefined format (date, datetime,...)
-		if (isset($conversionTable[$alias])) {
-			$f = $conversionTable[$alias];
-		} else {
-			$f = $alias;
-		}
+		$locale = !empty($locale) ? trim($locale) : self::$locale;
 
 		// convert format
 		if (!empty($targetFormat)) {
-			$f = static::convertFormat($f, $targetFormat);
+			$f = static::convertFormat($format, $targetFormat, $locale);
+		// without conversion
 		} else {
-			// Check for Windows to find and replace the %e
-			// modifier correctly
-			if ($targetFormat===self::TARGET_CLIB && self::isWindows()) {
-				$f = preg_replace('#(?<!%)((?:%%)*)%e#', '\1%#d', $format); // @codeCoverageIgnore
-			}
+			$f = self::getFormatByAlias($format, $locale);
+		}
+
+		// Check for Windows to find and replace the %e
+		// modifier correctly
+		if ($targetFormat===self::TARGET_CLIB && self::isWindows()) {
+			$f = preg_replace('#(?<!%)((?:%%)*)%e#', '\1%#d', $f); // @codeCoverageIgnore
 		}
 
 		return $f;
@@ -374,43 +377,47 @@ class Dt extends Carbon
 
 	/**
 	 * Converts format
-	 * @param string $format
+	 * @param string $alias
 	 * @param string $targetFormat
 	 * @return string date format
 	 */
-	public static function convertFormat($format, $targetFormat, $locale = NULL)
+	public static function convertFormat($format, $targetFormat, $locale = null)
 	{
+		if (empty($format)) {
+			return null;
+		}
+
 		// YII2 === ICU
 		if ($targetFormat===self::TARGET_YII2) {
 			$targetFormat = self::TARGET_ICU;
 		}
 
-		// set locale
-		$locale = !empty($locale) ? trim(strtolower($locale)) : self::$locale;
-
-		// defs
-		$defs = self::getFormatDefinition($locale);
-		if (isset($defs[$format])) {
-			$format = $defs[$format];
+		// unknown conversion format
+		if (!isset(self::$conversionTable[$targetFormat])) {
+			return $format;
 		}
 
-		if (isset(self::$convertTable[$targetFormat])) {
+		// set locale
+		$locale = !empty($locale) ? trim($locale) : self::$locale;
 
-			$format = strtr($format, self::$convertTable[$targetFormat]);
+		// defs
+		$f = self::getFormatByAlias($format, $locale);
 
-			// remove extra padding
-			if ($targetFormat===self::TARGET_CLIB) {
-				$format = str_replace('%l ', '%l', $format);
+		// convert
+		$f = strtr($f, self::$conversionTable[$targetFormat]);
 
-				// stripping leading zeros
-				if (self::$strippLeadingZeros === true) {
-					$replace = self::isWindows() ? ['%#e', '%#m'] : ['%-e', '%-m'];
-					$format = str_replace(['%e', '%m'], $replace, $format);
-				}
+		// remove extra padding
+		if ($targetFormat===self::TARGET_CLIB) {
+			$f = str_replace('%l ', '%l', $f);
+
+			// stripping leading zeros
+			if (self::$strippLeadingZeros === true) {
+				$replace = self::isWindows() ? ['%#e', '%#m'] : ['%-e', '%-m'];
+				$f = str_replace(['%e', '%m'], $replace, $f);
 			}
 		}
 
-		return $format;
+		return $f;
 	}
 
 	/**
@@ -418,7 +425,7 @@ class Dt extends Carbon
 	 * @see DateTime::boundaries()
 	 * @return int
 	 */
-	public static function createTimestamp($date, $timezone = NULL)
+	public static function createTimestamp($date, $timezone = null)
 	{
 		$dt = new Dt($date, $timezone);
 		return $dt ? $dt->getTimestamp() : false;
@@ -442,40 +449,34 @@ class Dt extends Carbon
 	}
 
 	/**
-	 * Calculate boundaries for given timeframe.
-	 * @param string $period
-	 *
-	 * Possible parameters:<br>
-	 * 's', 'second'<br>
-	 * 'm', 'minute'<br>
-	 * 'h', 'hour'<br>
-	 * 'd', 'day', 'today', 'start of day', 'morning'<br>
-	 * 'midnight', 'today midnight', 'end of day'<br>
-	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
-	 * '+1d', '+1 day', 'tomorrow', 'next day'<br>
-	 * 'w', 'week', 'this week', 'current week', 'start of week'<br>
-	 * 'end of week'<br>
-	 * '-1w', '-1 week', 'previous week', 'week ago', 'one week ago'<br>
-	 * '+1w', '+1 week', 'next week'<br>
-	 * 'mo', 'month', 'this month', 'current month', 'start of month'<br>
-	 * '-1mo', '-1 month', '1 month ago', 'month ago', 'one month ago'<br>
-	 * '+1mo', '+1 month', 'next month'<br>
-	 * 'y', 'year', 'this year', 'current year', 'start of year'<br>
-	 * '-1y', '-1 year', 'previous year', 'year ago', 'one year ago'<br>
-	 * '+1y', '+1 year', 'next year'<br>
-	 *
-	 * @param bool $returnObject
-	 * @param int|\DateTime $baseTime Base time
-	 * @return DateTime object
-	 * @param string $timezone
-	 * @throws \InvalidArgumentException
+	 * @see getBoundaries()
 	 */
 	public static function getTime($period, $returnObject = true, $baseTime = null, $timezone = null)
 	{
-		// custom time
-		if (is_numeric($baseTime) && $baseTime > 0) {
-			$dt = new Dt((float)$baseTime, $timezone);
-		// now
+		$b = self::getBoundaries($period, true, $baseTime, $timezone);
+		if ($b) {
+			return $returnObject===true ? $b[0] : $b[0]->getTimestamp();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Get relative time
+	 * @param string $period
+	 * @param int|float $value the $value count passed in
+	 * @param bool $returnObject
+	 * @param int|\DateTime $baseTime
+	 * @param string $timezone
+	 * @return int|\meriksk\DateTime\Dt
+	 */
+	public static function getRelativeTime($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
+	{
+		if (is_numeric($baseTime)) {
+			$dt = static::createFromTimestamp($baseTime, $timezone);
+		} elseif (is_object($baseTime) && $baseTime instanceof Dt) {
+			$dt = clone $baseTime;
+			$dt->setTimezone($timezone);
 		} else {
 			$dt = new Dt($baseTime, $timezone);
 		}
@@ -485,161 +486,16 @@ class Dt extends Carbon
 		}
 
 		switch ($period) {
-			// seconds
-			case 's':
-			case 'second':
-				$dt->startOfSecond();
-				break;
-			// minutes
-			case 'm':
-			case 'minute':
-				$dt->startOfMinute();
-				break;
-			// hours
-			case 'h':
-			case 'hour':
-				$dt->startOfHour();
-				break;
-			// today
-			case 'd':
-			case 'day':
-			case 'today':
-			case 'morning':
-			case 'start of day':
-				$dt->startOfDay();
-				break;
-			// today midnight
-			case 'midnight':
-			case 'today midnight':
-			case 'end of day':
-				$dt->endOfDay();
-				break;
-			// yesterday
-			case '-1d':
-			case '-1 day':
-			case 'day ago':
-			case '1 day ago':
-			case 'yesterday':
-			case 'previous day':
-				$dt->subDay()->startOfDay();
-				break;
-			// tomorrow
-			case '+1d':
-			case '+1 day':
-			case 'tomorrow':
-			case 'next day':
-				$dt->addDay()->startOfDay();
-				break;
-			// this week
-			case 'w':
-			case 'week':
-			case 'this week':
-			case 'current week':
-			case 'start of week':
-				$dt->startOfWeek();
-				break;
-			// end of this week
-			case 'end of week':
-				$dt->endOfWeek();
-				break;
-			// previous week
-			case '-1w':
-			case '-1 week':
-			case 'previous week':
-			case 'week ago':
-			case 'one week ago':
-				$dt->subWeek()->startOfWeek();
-				break;
-			// next week
-			case '+1w':
-			case '+1 week':
-			case 'next week':
-				$dt->addWeek()->startOfWeek();
-				break;
-			// month
-			case 'mo':
-			case 'month':
-			case 'this month':
-			case 'current month':
-			case 'start of month':
-				$dt->startOfMonth();
-				break;
-			// previous month
-			case '-1mo':
-			case '-1 month':
-			case '1 month ago':
-			case 'month ago':
-			case 'one month ago':
-				$dt->subMonthsWithNoOverflow()->startOfMonth();
-				break;
-			// next month
-			case '+1mo':
-			case '+1 month':
-			case 'next month':
-				$dt->addMonthNoOverflow()->startOfMonth();
-				break;
-			// year
-			case 'y':
-			case 'year':
-			case 'this year':
-			case 'current year':
-			case 'start of year':
-				$dt->startOfYear();
-				break;
-			// previous year
-			case '-1y':
-			case '-1 year':
-			case 'previous year':
-			case 'year ago':
-			case 'one year ago':
-				$dt->subYearWithNoOverflow()->startOfYear();
-				break;
-			// next year
-			case '+1y':
-			case '+1 year':
-			case 'next year':
-				$dt->addYearWithNoOverflow()->startOfYear();
-				break;
-			default:
-				throw new \InvalidArgumentException(sprintf('Invalid period definition: %s', $period));
-		}
-
-		// return
-		return $returnObject===true ? $dt : $dt->getTimestamp();
-	}
-
-	/**
-	 * Get relative time
-	 * @param string $period
-	 * @param int|float $value the $value count passed in
-	 * @param bool $returnObject
-	 * @param int|\DateTime $time Start time
-	 * @param string $timezone
-	 * @return int|\meriksk\DateTime\Dt
-	 */
-	public static function getRelativeTime($period, $value = 1, $returnObject = true, $time = null, $timezone = null)
-	{
-		// custom time
-		if (is_numeric($time) && $time > 0) {
-			$dt = new Dt((float)$time, $timezone);
-		// now
-		} else {
-			$dt = new Dt($time, $timezone);
-		}
-
-		if (!$dt) {
-			return false;
-		}
-
-		switch ($period) {
 			// second
 			case 's':
+			case 'sec':
 			case 'second':
 			case 'seconds':
 				$dt->subSeconds($value);
 				break;
 			// minute
 			case 'm':
+			case 'min':
 			case 'minute':
 			case 'minutes':
 				$dt->subMinutes($value);
@@ -688,8 +544,8 @@ class Dt extends Carbon
 	 * @param string $period
 	 *
 	 * Possible parameters:<br>
-	 * 's', 'second'<br>
-	 * 'm', 'minute'<br>
+	 * 's', 'sec', 'second'<br>
+	 * 'm', 'min', 'minute'<br>
 	 * 'h', 'hour'<br>
 	 * 'd', 'day', 'today'<br>
 	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
@@ -713,9 +569,13 @@ class Dt extends Carbon
 	 */
 	public static function getBoundaries($period, $returnObject = true, $baseTime = null, $timezone = null)
 	{
-
-		$dt0 = self::getTime($period, true, $baseTime, $timezone);
-		$dt1 = clone $dt0;
+		// custom time
+		if (is_numeric($baseTime) && $baseTime > 0) {
+			$dt0 = new Dt((float)$baseTime, $timezone);
+		// now
+		} else {
+			$dt0 = new Dt($baseTime, $timezone);
+		}
 
 		if (!$dt0) {
 			return false;
@@ -724,17 +584,25 @@ class Dt extends Carbon
 		switch ($period) {
 			// seconds
 			case 's':
+			case 'sec':
 			case 'second':
+				$dt0->startOfSecond();
+				$dt1 = clone $dt0;
 				$dt1->endOfSecond();
 				break;
 			// minutes
 			case 'm':
+			case 'min':
 			case 'minute':
+				$dt0->startOfMinute();
+				$dt1 = clone $dt0;
 				$dt1->endOfMinute();
 				break;
 			// hours
 			case 'h':
 			case 'hour':
+				$dt0->startOfHour();
+				$dt1 = clone $dt0;
 				$dt1->endOfHour();
 				break;
 			// today
@@ -743,6 +611,8 @@ class Dt extends Carbon
 			case 'today':
 			case 'morning':
 			case 'start of day':
+				$dt0->startOfDay();
+				$dt1 = clone $dt0;
 				$dt1->endOfDay();
 				break;
 			// yesterday
@@ -752,6 +622,8 @@ class Dt extends Carbon
 			case '1 day ago':
 			case 'yesterday':
 			case 'previous day':
+				$dt0->subDay()->startOfDay();
+				$dt1 = clone $dt0;
 				$dt1->endOfDay();
 				break;
 			// tomorrow
@@ -759,6 +631,8 @@ class Dt extends Carbon
 			case '+1 day':
 			case 'tomorrow':
 			case 'next day':
+				$dt0->addDay()->startOfDay();
+				$dt1 = clone $dt0;
 				$dt1->endOfDay();
 				break;
 			// this week
@@ -767,6 +641,8 @@ class Dt extends Carbon
 			case 'this week':
 			case 'current week':
 			case 'start of week':
+				$dt0->startOfWeek();
+				$dt1 = clone $dt0;
 				$dt1->endOfWeek();
 				break;
 			// previous week
@@ -775,12 +651,16 @@ class Dt extends Carbon
 			case 'previous week':
 			case 'week ago':
 			case 'one week ago':
+				$dt0->subWeek()->startOfWeek();
+				$dt1 = clone $dt0;
 				$dt1->endOfWeek();
 				break;
 			// next week
 			case '+1w':
 			case '+1 week':
 			case 'next week':
+				$dt0->addWeek()->startOfWeek();
+				$dt1 = clone $dt0;
 				$dt1->endOfWeek();
 				break;
 			// month
@@ -789,6 +669,8 @@ class Dt extends Carbon
 			case 'this month':
 			case 'current month':
 			case 'start of month':
+				$dt0->startOfMonth();
+				$dt1 = clone $dt0;
 				$dt1->endOfMonth();
 				break;
 			// previous month
@@ -797,12 +679,16 @@ class Dt extends Carbon
 			case '1 month ago':
 			case 'month ago':
 			case 'one month ago':
+				$dt0->subMonthsWithNoOverflow()->startOfMonth();
+				$dt1 = clone $dt0;
 				$dt1->endOfMonth();
 				break;
 			// next month
 			case '+1mo':
 			case '+1 month':
 			case 'next month':
+				$dt0->addMonthNoOverflow()->startOfMonth();
+				$dt1 = clone $dt0;
 				$dt1->endOfMonth();
 				break;
 			// year
@@ -811,6 +697,8 @@ class Dt extends Carbon
 			case 'this year':
 			case 'current year':
 			case 'start of year':
+				$dt0->startOfYear();
+				$dt1 = clone $dt0;
 				$dt1->endOfYear();
 				break;
 			// previous year
@@ -819,12 +707,16 @@ class Dt extends Carbon
 			case 'previous year':
 			case 'year ago':
 			case 'one year ago':
+				$dt0->subYearWithNoOverflow()->startOfYear();
+				$dt1 = clone $dt0;
 				$dt1->endOfYear();
 				break;
 			// next year
 			case '+1y':
 			case '+1 year':
 			case 'next year':
+				$dt0->addYearWithNoOverflow()->startOfYear();
+				$dt1 = clone $dt0;
 				$dt1->endOfYear();
 				break;
 			default:
@@ -850,15 +742,16 @@ class Dt extends Carbon
 		$dt0 = self::getRelativeTime($period, $value, true, $baseTime, $timezone);
 		$dt1 = null;
 
-		// custom time
-		if (is_numeric($baseTime) && $baseTime > 0) {
-			$dt1 = new Dt((float)$baseTime, $timezone);
-		// now
+		if (is_numeric($baseTime)) {
+			$dt1 = static::createFromTimestamp($baseTime, $timezone);
+		} elseif (is_object($baseTime) && $baseTime instanceof Dt) {
+			$dt1 = clone $baseTime;
+			$dt1->setTimezone($timezone);
 		} else {
 			$dt1 = new Dt($baseTime, $timezone);
 		}
 
-		if (!$dt0) {
+		if (!$dt0 || !$dt1) {
 			return false;
 		}
 
@@ -871,7 +764,7 @@ class Dt extends Carbon
 	 * @param int $seconds
 	 * @return string
 	 */
-	public static function secondsToWords($seconds)
+	public static function secondsToWords($seconds): string
 	{
 		if (intval($seconds) <= 0) {
 			return '0s';
@@ -889,72 +782,29 @@ class Dt extends Carbon
 			return $s . 's';
 		}
 	}
-	
-	/**
-	 * Generate list - days in week
-	 * @param string $width Available formats: narrow, wide
-	 * @return array
-	 */
-	public static function listDays($width = 'narrow', string $locale = 'en')
-	{
-		$arr = [];
-		$dt = new Dt('first monday of 2020');
-		$dt->locale($locale);		
-		
-		$format = $width=='long' ? 'l' : 'D';		
-		for ($m=0; $m<7; ++$m) {
-			$arr[$m] = $dt->translatedFormat($format);
-			$dt->addDay();
-		}
-
-		return $arr;
-	}
-	
-	/**
-	 * Generate list - months in year
-	 * @param string $width Available formats: narrow, wide
-	 * @return array
-	 */
-	public static function listMonths($width = 'narrow', string $locale = 'en')
-	{
-		$arr = [];
-		$dt = Dt::createFromDate(2020, 1, 1);
-		$dt->locale($locale);		
-		
-		$format = $width=='long' ? 'F' : 'M';		
-		for ($m=1; $m<=12; ++$m) {
-			$arr[$m] = $dt->translatedFormat($format);
-			$dt->addMonth();
-		}
-
-		return $arr;
-	}
 
 	/**
-	 * Get years options (HTML)
-	 * @param int $from
-	 * @param int $to
-	 * @return array
+	 * Converts a MySQL Timestamp to Unix
+	 *
+	 * @param int MySQL timestamp YYYY-MM-DD HH:MM:SS
+	 * @return int Unix timestamp
 	 */
-	public static function getYearOptions($from = NULL, $to = NULL)
+	public static function mysqlToUnix(string $time = '')
 	{
-		$options = [];
-		$from = (int)$from;
-		$to = (int)$to;
+		// We'll remove certain characters for backward compatibility
+		// since the formatting changed with MySQL 4.1
+		// YYYY-MM-DD HH:MM:SS
+		$time = str_replace(['-', ':', ' '], '', $time);
 
-		if (empty($from)) {
-			$from = date('Y') - 100;
-		}
-
-		if (empty($to)) {
-			$to = date('Y');
-		}
-
-		for ($i = $to; $i >= $from; $i--) {
-			$options[ $i ] = $i;
-		}
-
-		return $options;
+		// YYYYMMDDHHMMSS
+		return mktime(
+			substr($time, 8, 2),
+			substr($time, 10, 2),
+			substr($time, 12, 2),
+			substr($time, 4, 2),
+			substr($time, 6, 2),
+			substr($time, 0, 4)
+		);
 	}
 
 	/**
@@ -962,11 +812,10 @@ class Dt extends Carbon
 	 * @param string|DateTimeZone $timezone String or DateTimeZone object Desired timezone
 	 * @param int|string $start Start of the day (number of minutes past midnight), default: 5:00 AM
 	 * @param int|string $end End of the day (number of minutes past midnight), default: 9:00 PM
-	 * @return boolean or NULL if error occurred
+	 * @return boolean or null if error occurred
 	 */
-	public function isDay($timezone=null, $start=300, $end=1260)
+	public function isDay($timezone = null, $start = 300, $end = 1260): bool
 	{
-
 		$dt = clone $this;
 
 		// desired timezone
@@ -994,11 +843,87 @@ class Dt extends Carbon
 	 * @param string|DateTimeZone $timezone String or DateTimeZone object
 	 * @param int $start Start of the day (number of minutes past midnight), default: 5:00 AM
 	 * @param int $end End of the day (number of minutes past midnight), default: 9:00 PM
-	 * @return bool or NULL if error occurred
+	 * @return bool or null if error occurred
 	 */
-	public function isNight($timezone=NULL, $start=300, $end=1260)
+	public function isNight($timezone = null, $start = 300, $end = 1260): bool
 	{
 		return !$this->isDay($timezone, $start, $end);
+	}
+
+	/**
+	 * Generate list - days in week
+	 * @param string $width Available formats: narrow, wide
+	 * @return array
+	 */
+	public static function listDays(string $width = 'narrow', string $locale = 'en'): array
+	{
+		$arr = [];
+		$dt = new Dt('first monday of 2020');
+		$dt->locale($locale);
+
+		$format = $width=='long' ? 'dddd' : 'ddd';
+		for ($m=0; $m<7; ++$m) {
+			$arr[$m] = $dt->isoFormat($format);
+			$dt->addDay();
+		}
+
+		return $arr;
+	}
+
+	/**
+	 * Generate list - months in year
+	 * @param string $width Available formats: narrow, wide
+	 * @return array
+	 */
+	public static function listMonths(string $width = 'narrow', string $locale = 'en'): array
+	{
+		$arr = [];
+		$dt = Dt::createFromDate(2020, 1, 1);
+		$dt->locale($locale);
+
+		$format = $width=='long' ? 'MMMM' : 'MMM';
+		for ($m=1; $m<=12; ++$m) {
+			$arr[$m] = $dt->isoFormat($format);
+			$dt->addMonth();
+		}
+
+		return $arr;
+	}
+
+	/**
+	 * List Years
+	 * @param int $from
+	 * @param int $to
+	 * @return array
+	 */
+	public static function listYears(int $from = null, int $to = null): array
+	{
+		$arr = [];
+		$from = (int)$from;
+		$to = (int)$to;
+
+		if (empty($from)) {
+			$from = date('Y') - 100;
+		}
+
+		if (empty($to) || $to <= $from) {
+			$to = date('Y');
+		}
+
+		for ($i = $from; $i <= $to; $i++) {
+			$arr[$i] = $i;
+		}
+
+		return $arr;
+	}
+
+	/**
+	 * @deprecated
+	 * @see listYears()
+	 */
+	public static function getYearOptions(int $from = null, int $to = null): array
+	{
+		return self::listYears($from, $to);
 	}
 
 }

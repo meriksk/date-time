@@ -3,6 +3,8 @@
 *.iml
 .php_cs
 .php_cs.cache
+.php-cs-fixer.php
+.php-cs-fixer.cache
 vendor
 composer.phar
 composer.lock
