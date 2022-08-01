@@ -889,6 +889,46 @@ class Dt extends Carbon
 			return $s . 's';
 		}
 	}
+	
+	/**
+	 * Generate list - days in week
+	 * @param string $width Available formats: narrow, wide
+	 * @return array
+	 */
+	public static function listDays($width = 'narrow', string $locale = 'en')
+	{
+		$arr = [];
+		$dt = new Dt('first monday of 2020');
+		$dt->locale($locale);		
+		
+		$format = $width=='long' ? 'l' : 'D';		
+		for ($m=0; $m<7; ++$m) {
+			$arr[$m] = $dt->translatedFormat($format);
+			$dt->addDay();
+		}
+
+		return $arr;
+	}
+	
+	/**
+	 * Generate list - months in year
+	 * @param string $width Available formats: narrow, wide
+	 * @return array
+	 */
+	public static function listMonths($width = 'narrow', string $locale = 'en')
+	{
+		$arr = [];
+		$dt = Dt::createFromDate(2020, 1, 1);
+		$dt->locale($locale);		
+		
+		$format = $width=='long' ? 'F' : 'M';		
+		for ($m=1; $m<=12; ++$m) {
+			$arr[$m] = $dt->translatedFormat($format);
+			$dt->addMonth();
+		}
+
+		return $arr;
+	}
 
 	/**
 	 * Get years options (HTML)

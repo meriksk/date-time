@@ -398,7 +398,32 @@ class DateTimeTest extends BaseTestCase
 		$this->assertEquals('1m 0s', Dt::secondsToWords(60));
 		$this->assertEquals('2m 5s', Dt::secondsToWords(125));
 		$this->assertEquals('5m 30s', Dt::secondsToWords(330));
-		$this->assertEquals('1h 0m 10s', Dt::secondsToWords(3610));
+		$this->assertEquals('1h 1m 0s', Dt::secondsToWords(3660));
+		$this->assertEquals('1h 0m 10s', Dt::secondsToWords(3610));		
+	}
+	
+	public function testListDays()
+	{
+		$d = Dt::listDays();
+		$this->assertEquals(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], $d);
+		
+		$d = Dt::listDays('narrow', 'de');
+		$this->assertEquals(['Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.', 'So.'], $d);
+	}
+	
+	public function testListMonths()
+	{
+		$m = Dt::listMonths();
+		$this->assertEquals([
+			1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'May', 6 => 'Jun', 
+			7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dec'
+		], $m);
+		
+		$m = Dt::listMonths('narrow', 'de');
+		$this->assertEquals([
+			1 => 'Jan', 2 => 'Feb', 3 => 'Mär', 4 => 'Apr', 5 => 'Mai', 6 => 'Jun', 
+			7 => 'Jul', 8 => 'Aug', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Dez'
+		], $m);
 	}
 
 	public function testP()
