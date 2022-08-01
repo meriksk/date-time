@@ -430,53 +430,34 @@ class DateTimeTest extends BaseTestCase
 	public function testIsDay()
 	{
 		// is day (05:00 - 21:00)
+		$this->assertFalse(Dt::isDay('2017-05-01 04:59:59'));
+		$this->assertTrue(Dt::isDay('2017-05-01 05:00:00'));
+		$this->assertTrue(Dt::isDay('2017-05-01 20:59:59'));
+		$this->assertFalse(Dt::isDay('2017-05-01 21:00:00'));
+		$this->assertTrue(Dt::isDay('2017-05-01 6:30:00 AM', 'US/Central'));
 
-		// no timezone
-		$dt1 = Dt::create('2017-05-01 04:59:59', 'Europe/Bratislava');
-		$dt2 = Dt::create('2017-05-01 05:00:00', 'Europe/Bratislava');
-		$dt3 = Dt::create('2017-05-01 20:59:59', 'Europe/Bratislava');
-		$dt4 = Dt::create('2017-05-01 21:00:00', 'Europe/Bratislava');
-
-		$this->assertFalse($dt1->isDay());
-		$this->assertTrue($dt2->isDay());
-		$this->assertTrue($dt3->isDay());
-		$this->assertFalse($dt4->isDay());
+		// object
+		$dt = Dt::create('2017-05-01 05:00:00', 'Europe/Bratislava');
+		$this->assertTrue(Dt::isDay($dt));
 
 		// custom time-frame (02:00 - 03:00)
-		$dt1 = Dt::create('2017-05-01 01:59:59', 'Europe/Bratislava');
-		$dt2 = Dt::create('2017-05-01 02:00:00', 'Europe/Bratislava');
-		$dt3 = Dt::create('2017-05-01 02:59:59', 'Europe/Bratislava');
-		$dt4 = Dt::create('2017-05-01 03:00:00', 'Europe/Bratislava');
-
-		$this->assertFalse($dt1->isDay(null, 120, 180));
-		$this->assertFalse($dt1->isDay(null, '02:00', '03:00'));
-		$this->assertTrue($dt2->isDay(null, 120, 180));
-		$this->assertTrue($dt2->isDay(null, '02:00', '03:00'));
-		$this->assertTrue($dt3->isDay(null, 120, 180));
-		$this->assertTrue($dt3->isDay(null, '02:00', '03:00'));
-		$this->assertFalse($dt4->isDay(null, 120, 180));
-		$this->assertFalse($dt4->isDay(null, '02:00', '03:00'));
-
-		// diferent timezone
-		// UTC (6:30 AM) -> US/Central (01:30 AM)
-		$dt = Dt::create('2017-05-01 6:30:00 AM', 'UTC');
-		$this->assertFalse($dt->isDay('US/Central'));
+		$this->assertFalse(Dt::isDay('2017-05-01 01:59:59', 'Europe/Bratislava', 120, 180));
+		$this->assertFalse(Dt::isDay('2017-05-01 01:59:59', 'Europe/Bratislava', '02:00', '03:00'));
+		$this->assertTrue(Dt::isDay('2017-05-01 02:00:00', 'Europe/Bratislava', 120, 180));
+		$this->assertTrue(Dt::isDay('2017-05-01 02:00:00', 'Europe/Bratislava', '02:00', '03:00'));
+		$this->assertTrue(Dt::isDay('2017-05-01 02:59:59', 'Europe/Bratislava', 120, 180));
+		$this->assertTrue(Dt::isDay('2017-05-01 02:59:59', 'Europe/Bratislava', '02:00', '03:00'));
+		$this->assertFalse(Dt::isDay('2017-05-01 03:00:00', 'Europe/Bratislava', 120, 180));
+		$this->assertFalse(Dt::isDay('2017-05-01 03:00:00', 'Europe/Bratislava', '02:00', '03:00'));
 	}
 
 	public function testIsNight()
 	{
 		// is night (21:00 - 05:00)
-
-		// no timezone
-		$dt1 = Dt::create('2017-05-01 20:59:59', 'Europe/Bratislava');
-		$dt2 = Dt::create('2017-05-01 21:00:00', 'Europe/Bratislava');
-		$dt3 = Dt::create('2017-05-01 04:59:59', 'Europe/Bratislava');
-		$dt4 = Dt::create('2017-05-01 05:00:00', 'Europe/Bratislava');
-
-		$this->assertFalse($dt1->isNight());
-		$this->assertTrue($dt2->isNight());
-		$this->assertTrue($dt3->isNight());
-		$this->assertFalse($dt4->isNight());
+		$this->assertFalse(Dt::isNight('2017-05-01 20:59:59'));
+		$this->assertTrue(Dt::isNight('2017-05-01 21:00:00'));
+		$this->assertTrue(Dt::isNight('2017-05-01 04:59:59'));
+		$this->assertFalse(Dt::isNight('2017-05-01 05:00:00'));
 	}
 
 	public function testListDays()
@@ -517,7 +498,7 @@ class DateTimeTest extends BaseTestCase
 
 	public function testListYears()
 	{
-		$m = Dt::listYears();		
+		$m = Dt::listYears();
 		$r = range(date('Y')-100, date('Y'));
 		$r = array_combine(array_values($r), array_values($r));
 		$this->assertEquals($r, $m);
@@ -530,7 +511,7 @@ class DateTimeTest extends BaseTestCase
 		$m = Dt::listYears(1990);
 		$r = range(1990, date('Y'));
 		$r = array_combine(array_values($r), array_values($r));
-		$this->assertEquals($r, $m);	
+		$this->assertEquals($r, $m);
 	}
 
 }

@@ -288,13 +288,15 @@ class Dt extends Carbon
 	 */
 	public static function f($format, $timestamp = null, $timezone = null, $locale = null)
 	{
+		$tz = $timezone ? $timezone : self::$timezone;
+		
 		if (is_numeric($timestamp)) {
-			$dt = static::createFromTimestamp($timestamp, $timezone);
+			$dt = static::createFromTimestamp($timestamp, $tz);
 		} elseif (is_object($timestamp) && $timestamp instanceof Dt) {
 			$dt = clone $timestamp;
-			$dt->setTimezone($timezone);
+			if ($tz) { $dt->setTimezone($tz); }
 		} else {
-			$dt = new Dt($timestamp, $timezone);
+			$dt = new Dt($timestamp, $tz);
 		}
 
 		if (!$dt) {
@@ -427,7 +429,8 @@ class Dt extends Carbon
 	 */
 	public static function createTimestamp($date, $timezone = null)
 	{
-		$dt = new Dt($date, $timezone);
+		$tz = $timezone ? $timezone : self::$timezone;
+		$dt = new Dt($date, $tz);
 		return $dt ? $dt->getTimestamp() : false;
 	}
 
@@ -472,13 +475,15 @@ class Dt extends Carbon
 	 */
 	public static function getRelativeTime($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
 	{
+		$tz = $timezone ? $timezone : self::$timezone;
+
 		if (is_numeric($baseTime)) {
-			$dt = static::createFromTimestamp($baseTime, $timezone);
+			$dt = static::createFromTimestamp($baseTime, $tz);
 		} elseif (is_object($baseTime) && $baseTime instanceof Dt) {
 			$dt = clone $baseTime;
-			$dt->setTimezone($timezone);
+			if ($tz) { $dt->setTimezone($tz); }
 		} else {
-			$dt = new Dt($baseTime, $timezone);
+			$dt = new Dt($baseTime, $tz);
 		}
 
 		if (!$dt) {
@@ -569,12 +574,15 @@ class Dt extends Carbon
 	 */
 	public static function getBoundaries($period, $returnObject = true, $baseTime = null, $timezone = null)
 	{
-		// custom time
-		if (is_numeric($baseTime) && $baseTime > 0) {
-			$dt0 = new Dt((float)$baseTime, $timezone);
-		// now
+		$tz = $timezone ? $timezone : self::$timezone;
+		
+		if (is_numeric($baseTime)) {
+			$dt0 = static::createFromTimestamp($baseTime, $tz);
+		} elseif (is_object($baseTime) && $baseTime instanceof Dt) {
+			$dt0 = clone $baseTime;
+			if ($tz) { $dt0->setTimezone($tz); }
 		} else {
-			$dt0 = new Dt($baseTime, $timezone);
+			$dt0 = new Dt($baseTime, $tz);
 		}
 
 		if (!$dt0) {
@@ -739,16 +747,17 @@ class Dt extends Carbon
 	 */
 	public static function getRelativeTimeBoundaries($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
 	{
-		$dt0 = self::getRelativeTime($period, $value, true, $baseTime, $timezone);
+		$tz = $timezone ? $timezone : self::$timezone;
+		$dt0 = self::getRelativeTime($period, $value, true, $baseTime, $tz);
 		$dt1 = null;
 
 		if (is_numeric($baseTime)) {
-			$dt1 = static::createFromTimestamp($baseTime, $timezone);
+			$dt1 = static::createFromTimestamp($baseTime, $tz);
 		} elseif (is_object($baseTime) && $baseTime instanceof Dt) {
 			$dt1 = clone $baseTime;
-			$dt1->setTimezone($timezone);
+			if ($tz) { $dt1->setTimezone($tz); }
 		} else {
-			$dt1 = new Dt($baseTime, $timezone);
+			$dt1 = new Dt($baseTime, $tz);
 		}
 
 		if (!$dt0 || !$dt1) {
@@ -809,30 +818,39 @@ class Dt extends Carbon
 
 	/**
 	 * Checks if instance is day time (05:00 - 21:00)
+	 * @param int|string|DateTime $datetime
 	 * @param string|DateTimeZone $timezone String or DateTimeZone object Desired timezone
 	 * @param int|string $start Start of the day (number of minutes past midnight), default: 5:00 AM
 	 * @param int|string $end End of the day (number of minutes past midnight), default: 9:00 PM
 	 * @return boolean or null if error occurred
 	 */
-	public function isDay($timezone = null, $start = 300, $end = 1260): bool
+	public static function isDay($datetime = 'now', $timezone = null, $start = 300, $end = 1260): bool
 	{
-		$dt = clone $this;
-
-		// desired timezone
-		if ($timezone) {
-			$dt->setTimezone($timezone);
+		$tz = $timezone ? $timezone : self::$timezone;
+		
+		if (is_numeric($datetime)) {
+			$dt = static::createFromTimestamp($datetime, $tz);
+		} elseif (is_object($datetime) && $datetime instanceof Dt) {
+			$dt = clone $datetime;
+			if ($tz) { $dt->setTimezone($tz); }
+		} else {
+			$dt = new Dt($datetime, $tz);
 		}
 
 		// support time as string ("05:00")
 		if (is_string($start) && preg_match('/^([0-9]{2}):([0-9]{2})$/', $start, $m)) {
-			$start = ($m[1] * 60) + (int)$m[2];
+			$start = ((int)$m[1] * 60) + (int)$m[2];
 		}
 		if (is_string($end) && preg_match('/^([0-9]{2}):([0-9]{2})$/', $end, $m)) {
-			$end = ($m[1] * 60) + (int)$m[2];
+			$end = ((int)$m[1] * 60) + (int)$m[2];
 		}
+		
+		// convert to seconds
+		$start = $start * 60;
+		$end = $end * 60;
 
 		// calculate seconds from the midnight
-		$seconds = ($dt->hour * 60) + $dt->minute;
+		$seconds = ($dt->hour * 3600) + ($dt->minute * 60) + $dt->second;
 
 		// (00:00 <-> 05:00) AND (21:00 <-> 23:59)
 		return $seconds >= $start && $seconds < $end;
@@ -840,14 +858,15 @@ class Dt extends Carbon
 
 	/**
 	 * Checks if instance is night time (21:00 - 05:00)
+	 * @param int|string|DateTime $datetime
 	 * @param string|DateTimeZone $timezone String or DateTimeZone object
 	 * @param int $start Start of the day (number of minutes past midnight), default: 5:00 AM
 	 * @param int $end End of the day (number of minutes past midnight), default: 9:00 PM
 	 * @return bool or null if error occurred
 	 */
-	public function isNight($timezone = null, $start = 300, $end = 1260): bool
+	public static function isNight($datetime = 'now', $timezone = null, $start = 300, $end = 1260): bool
 	{
-		return !$this->isDay($timezone, $start, $end);
+		return self::isDay($datetime, $timezone, $start, $end) === false;
 	}
 
 	/**
