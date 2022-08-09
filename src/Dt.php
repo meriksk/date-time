@@ -553,18 +553,18 @@ class Dt extends Carbon
 	 * 'm', 'min', 'minute'<br>
 	 * 'h', 'hour'<br>
 	 * 'd', 'day', 'today'<br>
-	 * '-1d', '-1 day', '1 day ago', 'day ago', 'yesterday', 'previous day'<br>
-	 * '+1d', '+1 day', 'tomorrow', 'next day'<br>
-	 * 'w', 'week', 'this week', 'current week'<br>
-	 * '-1w', '-1 week', 'previous week', 'week ago', 'one week ago'<br>
-	 * '+1w', '+1 week', 'next week'<br>
-	 * 'mo', 'month', 'this month', 'current month'<br>
-	 * '-1mo', '-1 month', '1 month ago', 'month ago', 'one month ago'<br>
-	 * '+1mo', '+1 month', 'next month'<br>
-	 * 'y', 'year', 'this year', 'current year'<br>
-	 * '-1y', '-1 year', 'previous year', 'year ago', 'one year ago'<br>
-	 * '+1y', '+1 year', 'next year'<br>
-	 *
+	 * '-1d', '-1 day', 'day ago', 'day_ago', 'yesterday', 'previous day', 'previous_day'<br>
+	 * '+1d', '+1 day', 'tomorrow', 'next day', 'next_day'<br>
+	 * 'w', 'week', 'this week', 'this_week', 'current week', 'current_week'<br>
+	 * '-1w', '-1 week', 'last week', 'last_week', 'previous week', 'previous_week', 'week ago', 'week_ago'<br>
+	 * '+1w', '+1 week', 'next week', 'next_week'<br>
+	 * 'mo', 'month', 'this month', 'this_month', 'current month', 'current_month'<br>
+	 * '-1mo', '-1 month', 'last month', 'last_month', 'previous month', 'previous_month', 'month ago', 'month_ago'<br>
+	 * '+1mo', '+1 month', 'next month', 'next_month'<br>
+	 * 'y', 'year', 'this year', 'this_year', 'current year', 'current_year'<br>
+	 * '-1y', '-1 year', 'last year', 'last_year', 'previous year', 'previous_year', 'year ago', 'year_ago'<br>
+	 * '+1y', '+1 year', 'next year', 'next_year'<br>
+	 * 
 	 * @param bool $returnObject
 	 * @param int|\DateTime $baseTime
 	 * @param string $timezone
@@ -617,8 +617,6 @@ class Dt extends Carbon
 			case 'd':
 			case 'day':
 			case 'today':
-			case 'morning':
-			case 'start of day':
 				$dt0->startOfDay();
 				$dt1 = clone $dt0;
 				$dt1->endOfDay();
@@ -627,9 +625,10 @@ class Dt extends Carbon
 			case '-1d':
 			case '-1 day':
 			case 'day ago':
-			case '1 day ago':
+			case 'day_ago':
 			case 'yesterday':
 			case 'previous day':
+			case 'previous_day':
 				$dt0->subDay()->startOfDay();
 				$dt1 = clone $dt0;
 				$dt1->endOfDay();
@@ -639,6 +638,7 @@ class Dt extends Carbon
 			case '+1 day':
 			case 'tomorrow':
 			case 'next day':
+			case 'next_day':
 				$dt0->addDay()->startOfDay();
 				$dt1 = clone $dt0;
 				$dt1->endOfDay();
@@ -647,8 +647,9 @@ class Dt extends Carbon
 			case 'w':
 			case 'week':
 			case 'this week':
+			case 'this_week':
 			case 'current week':
-			case 'start of week':
+			case 'current_week':
 				$dt0->startOfWeek();
 				$dt1 = clone $dt0;
 				$dt1->endOfWeek();
@@ -656,9 +657,12 @@ class Dt extends Carbon
 			// previous week
 			case '-1w':
 			case '-1 week':
+			case 'last week':
+			case 'last_week':
 			case 'previous week':
+			case 'previous_week':
 			case 'week ago':
-			case 'one week ago':
+			case 'week_ago':
 				$dt0->subWeek()->startOfWeek();
 				$dt1 = clone $dt0;
 				$dt1->endOfWeek();
@@ -667,6 +671,7 @@ class Dt extends Carbon
 			case '+1w':
 			case '+1 week':
 			case 'next week':
+			case 'next_week':			
 				$dt0->addWeek()->startOfWeek();
 				$dt1 = clone $dt0;
 				$dt1->endOfWeek();
@@ -675,8 +680,9 @@ class Dt extends Carbon
 			case 'mo':
 			case 'month':
 			case 'this month':
+			case 'this_month':
 			case 'current month':
-			case 'start of month':
+			case 'current_month':
 				$dt0->startOfMonth();
 				$dt1 = clone $dt0;
 				$dt1->endOfMonth();
@@ -684,9 +690,12 @@ class Dt extends Carbon
 			// previous month
 			case '-1mo':
 			case '-1 month':
-			case '1 month ago':
+			case 'last month':
+			case 'last_month':
+			case 'previous month':
+			case 'previous_month':
 			case 'month ago':
-			case 'one month ago':
+			case 'month_ago':
 				$dt0->subMonthsWithNoOverflow()->startOfMonth();
 				$dt1 = clone $dt0;
 				$dt1->endOfMonth();
@@ -695,6 +704,7 @@ class Dt extends Carbon
 			case '+1mo':
 			case '+1 month':
 			case 'next month':
+			case 'next_month':
 				$dt0->addMonthNoOverflow()->startOfMonth();
 				$dt1 = clone $dt0;
 				$dt1->endOfMonth();
@@ -703,8 +713,9 @@ class Dt extends Carbon
 			case 'y':
 			case 'year':
 			case 'this year':
+			case 'this_year':
 			case 'current year':
-			case 'start of year':
+			case 'current_year':
 				$dt0->startOfYear();
 				$dt1 = clone $dt0;
 				$dt1->endOfYear();
@@ -712,9 +723,12 @@ class Dt extends Carbon
 			// previous year
 			case '-1y':
 			case '-1 year':
+			case 'last year':
+			case 'last_year':
 			case 'previous year':
+			case 'previous_year':
 			case 'year ago':
-			case 'one year ago':
+			case 'year_ago':
 				$dt0->subYearWithNoOverflow()->startOfYear();
 				$dt1 = clone $dt0;
 				$dt1->endOfYear();
@@ -723,6 +737,7 @@ class Dt extends Carbon
 			case '+1y':
 			case '+1 year':
 			case 'next year':
+			case 'next_year':
 				$dt0->addYearWithNoOverflow()->startOfYear();
 				$dt1 = clone $dt0;
 				$dt1->endOfYear();
