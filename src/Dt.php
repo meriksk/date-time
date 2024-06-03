@@ -568,17 +568,17 @@ class Dt extends Carbon
      * 'm', 'min', 'minute'<br>
      * 'h', 'hour'<br>
      * 'd', 'day', 'today'<br>
-     * '-1d', 'yesterday', 'previous day'<br>
-     * '+1d', 'tomorrow', 'next day'<br>
+     * '-1d', 'yesterday', 'previous day', 'previous_day'<br>
+     * '+1d', 'tomorrow', 'next day', 'next_day'<br>
      * 'w', 'week'<br>
-     * '-1w', 'previous week', 'week ago'<br>
-     * '+1w', 'next week'<br>
+     * '-1w', 'previous week', 'week ago', 'week_ago'<br>
+     * '+1w', 'next week', 'next_week'<br>
      * 'M', 'mo', 'month'<br>
-     * '-1M', '-1mo', 'previous month', 'month ago'<br>
-     * '+1M', '+1mo', 'next month'<br>
+     * '-1M', '-1mo', 'previous month', 'month ago', 'month_ago'<br>
+     * '+1M', '+1mo', 'next month', 'next_month'<br>
      * 'y', 'year', 'this year', 'this_year', 'current year', 'current_year'<br>
-     * '-1y', 'previous year', 'year ago'<br>
-     * '+1y', 'next year'<br>
+     * '-1y', 'previous year', 'year ago', 'year_ago'<br>
+     * '+1y', 'next year', 'next_year'<br>
      * 
      * @param bool $returnObject
      * @param int|string|Dt $baseTime 
@@ -608,10 +608,12 @@ class Dt extends Carbon
                 break;
             case 'yesterday':
             case 'previous day':
+            case 'previous_day':
                 $period = '-1d/d';
                 break;
             case 'tomorrow':
             case 'next day':
+            case 'next_day':
                 $period = '+1d/d';
                 break;
             case 'week':
@@ -620,9 +622,11 @@ class Dt extends Carbon
                 break;
             case 'previous week':
             case 'week ago':
+            case 'week_ago':
                 $period = '-1w/w';
                 break;
             case 'next week':
+            case 'next_week':
                 $period = '+1w/w';
                 break;
             case 'mo':
@@ -631,6 +635,7 @@ class Dt extends Carbon
                 break;
             case 'previous month':
             case 'month ago':
+            case 'month_ago':
                 $period = '-1M/M';
                 break;
             case 'next month':
@@ -642,9 +647,11 @@ class Dt extends Carbon
                 break;
             case 'previous year':
             case 'year ago':
+            case 'year_ago':
                 $period = '-1y/y';
                 break;
             case 'next year':
+            case 'next_year':
                 $period = '+1y/y';
                 break;
             default:
