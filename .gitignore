@@ -1,15 +1,60 @@
-.idea
-.vscode
+# PhpStorm
+/.idea
 *.iml
-.php_cs
-.php_cs.cache
-.php-cs-fixer.php
-.php-cs-fixer.cache
-vendor
+
+# netbeans project files
+nbproject
+
+# zend studio for eclipse project files
+.buildpath
+.project
+.settings
+
+# sublime text project / workspace files
+*.sublime-project
+*.sublime-workspace
+
+# visual studio code project files
+.vscode
+
+# windows thumbnail cache
+Thumbs.db
+
+# composer vendor dir
+/vendor
+
+# composer itself is not needed
 composer.phar
 composer.lock
-coverage.xml
-coverage
-phpunit.xml
+
+# composer.lock in applications is ignored since it's automatically created by composer when application is installed
+/apps/*/composer.lock
+
+# Mac DS_Store Files
+.DS_Store
+
+# Apache Ant
+/.ant_targets
+
+# build artifacts and temporary files
+/build/artifacts
+/build/tmp
+/tests/autoload.php
+tests/_output/*
+tests/_support/_generated
+
+# PHP-CS-Fixer
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+
+# Psalm
+/.psalm/cache
+
+# PHPUnit
+/.phpunit.cache
 *.phpunit.result.cache
-/nbproject/
+
+# NPM packages
+/node_modules
+.env
+package-lock.json

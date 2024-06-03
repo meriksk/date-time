@@ -31,7 +31,14 @@ $dt = Dt::getTime('+1 month'); //  Add one month to the instance with overflow e
 
 // get boundaries
 $b = Dt::getBoundaries('day', true); // boundaries for today
-$b = Dt::getBoundaries('-1 day', true); // boundaries for yestarday
+$b = Dt::getBoundaries('yesterday', true); // boundaries for yesterday
+$b = Dt::getBoundaries('-2d', true); // day before yesterday
+
+// resolve time
+$b = Dt::resolveTime('now'); // current time
+$b = Dt::resolveTime('now/d'); // the day so far (start of the day)
+$b = Dt::resolveTime('now/d', true); // the day so far (end of the day)
+$b = Dt::resolveTime('now-1w'); // previous week
 ```
 
 ## Installation
