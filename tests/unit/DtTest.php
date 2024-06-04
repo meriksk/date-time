@@ -242,10 +242,19 @@ class DtTest extends BaseTestCase
         $now = new Dt('now');
         $yesterday = (new Dt('now'))->modify('-1 day');
 
+        // timestamp
+        $dt0 = Dt::resolveTime(self::$TIMESTAMP_2021_12_31_143000);
+        $this->assertEquals('2021-12-31 14:30:00.000 +00:00', $dt0->format('Y-m-d H:i:s.v e'));
+
+        // miliseconds
+        $dt0 = Dt::resolveTime((self::$TIMESTAMP_2021_12_31_143000 * 1000) + 999);
+        $this->assertEquals('2021-12-31 14:30:00.999 +00:00', $dt0->format('Y-m-d H:i:s.v e'));
+
         // now
         $dt0 = Dt::resolveTime('now');
         $this->assertIsObject($dt0);
-        $this->assertEquals($now->format('Y-m-d H:i:s'), $dt0->format('Y-m-d H:i:s'));
+        $this->assertEquals($now->format('Y-m-d H:i:s e'), $dt0->format('Y-m-d H:i:s e'));
+
         // start of the minute
         $dt0 = Dt::resolveTime('now/m');
         $this->assertEquals($now->format('Y-m-d H:i:00'), $dt0->format('Y-m-d H:i:s'));
@@ -275,8 +284,8 @@ class DtTest extends BaseTestCase
         $this->assertEquals($yesterday->format('Y-m-d 23:59:59'), $dt0->format('Y-m-d H:i:s'));
 
         // timezone
-        $dt0 = Dt::resolveTime('now/d', false, null, 'America/New_York');
-        $this->assertEquals('America/New_York', $dt0->getTimezone()->getName());
+        $dt0 = Dt::resolveTime('now/d', false, self::$DATETIME_2021_12_31_143000, 'America/New_York');
+        $this->assertSame('2017-12-24 16:30:15 America/Chicago', $dt0->format('Y-m-d H:i:s e'));
 
         // base time
         // start of the day

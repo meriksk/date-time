@@ -743,16 +743,27 @@ class Dt extends Carbon
 
         $tz = $timezone ? $timezone : self::$timezone;
 
-        // number (miliseconds)
+        // number (timestamp or miliseconds)
         // example: 
+        // 1716558968
         // 1716558968965
-        if (preg_match("/^[0-9][0-9\.]+$/", $datetime)) {
-            $ts = (int)($datetime / 1000);
-            $miliseconds = $datetime % 1000;
+        if (is_numeric($datetime)) {
 
-            $dt = Dt::createFromFormat('U.v', "{$ts}.{$miliseconds}");
+            $len = strlen($datetime);
+            if ($len > 11) {
+                $ts = (int)($datetime / 1000);
+                $miliseconds = $datetime % 1000;
+            } else {
+                $ts = (int)$datetime;
+                $miliseconds = 0;
+            }
+
+            $dt = static::createFromFormat('U.v', "{$ts}.{$miliseconds}");
             if ($dt) {
-                $dt->setTimezone($tz);
+                if ($tz) {
+                    $dt->setTimezone($tz);
+                }
+
                 return $dt;
             }
         }
