@@ -149,52 +149,64 @@ class DtTest extends BaseTestCase
     public function testF()
     {
         // timezone (system)
-        $dt = new Dt('2021-12-31 14:30:00');
-        $ts = $dt->getTimestamp();
+        $dtUtc = new Dt('2021-12-31 14:30:00', 'UTC');
+        $ts = $dtUtc->getTimestamp();
 
         // timezone (Europe/Bratislava)
-        $dt_ba = new Dt('2021-12-31 14:30:00', 'Europe/Bratislava');
-        $ts_ba = $dt_ba->getTimestamp();
+        $dtEurope = new Dt('2021-12-31 14:30:00', 'Europe/Bratislava');
+        $ts_ba = $dtEurope->getTimestamp();
 
-        // en (default locale)
-        $d = Dt::f('date_time', $dt->getTimestamp());
-        $this->assertEquals('12/31/2021 2:30:00 PM', $d);
-        $d = Dt::f('date_time', $dt->getTimestamp(), 'Europe/Bratislava');
-        $this->assertEquals('12/31/2021 3:30:00 PM', $d);
+        // timestamp, no timezone
+        $d = Dt::f('Y-m-d H:i:s e', $dtUtc->getTimestamp());
+        $this->assertSame('2021-12-31 14:30:00 +00:00', $d);
 
-        // use DateTime object, utc
-        $d = Dt::f('date_time', $dt);
-        $this->assertEquals('12/31/2021 2:30:00 PM', $d);
+        // timestamp, timezone
+        $d = Dt::f('Y-m-d H:i:s e', $dtUtc->getTimestamp(), 'Europe/Bratislava');
+        $this->assertSame('2021-12-31 15:30:00 Europe/Bratislava', $d);
 
-        // use DateTime object, change timezone -> utc
-        $d = Dt::f('date_time', $dt_ba, 'UTC');
-        $this->assertEquals('12/31/2021 1:30:00 PM', $d);
+        // DateTime object, no timezone conversion
+        $d = Dt::f('Y-m-d H:i:s e', $dtUtc);
+        $this->assertSame('2021-12-31 14:30:00 UTC', $d);
 
-        // use DateTime object, Europe/Bratislava
-        $d = Dt::f('date_time', $dt_ba, 'Europe/Bratislava');
-        $this->assertEquals('12/31/2021 2:30:00 PM', $d);
+        // DateTime object, no timezone conversion
+        $d = Dt::f('Y-m-d H:i:s e', $dtEurope);
+        $this->assertSame('2021-12-31 14:30:00 Europe/Bratislava', $d);
+
+        // DateTime object, timezone conversion UTC -> Europe
+        $d = Dt::f('Y-m-d H:i:s e', $dtUtc, 'Europe/Bratislava');
+        $this->assertSame('2021-12-31 15:30:00 Europe/Bratislava', $d);
+
+        // use DateTime object, Europe/Bratislava -> Europe/Bratislava
+        $d = Dt::f('Y-m-d H:i:s e', $dtEurope, 'Europe/Bratislava');
+        $this->assertSame('2021-12-31 14:30:00 Europe/Bratislava', $d);
+
+        // use DateTime object, Europe/Bratislava -> UTC
+        $d = Dt::f('Y-m-d H:i:s e', $dtEurope, 'UTC');
+        $this->assertSame('2021-12-31 13:30:00 UTC', $d);
 
         // specific locale
+        $d = Dt::f('date_time', $ts, null, 'en');
+        $this->assertEquals('12/31/2021 2:30:00 PM', $d);
         $d = Dt::f('date_time', $ts, null, 'sk');
         $this->assertEquals('31.12.2021 14:30:00', $d);
-        $d = Dt::f('date_time', $ts, 'Europe/Bratislava', 'sk');
+        $d = Dt::f('date_time', $dtUtc, 'Europe/Bratislava', 'sk');
         $this->assertEquals('31.12.2021 15:30:00', $d);
 
         // specific locale - translations - summer time
-        $d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-05-20 14:30:00'), 'Europe/Bratislava', 'sk');
-        $this->assertEquals('štvrtok, štv, máj, máj, 20.5.2021 16:30', $d);
+        $d = Dt::f('l, D, M, F, j.n.Y H:i', $dtUtc, 'Europe/Bratislava', 'sk');
+        $this->assertEquals('piatok, pia, dec, december, 31.12.2021 15:30', $d);
 
         // specific locale - translations - winter time
-        $d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-11-20 14:30:00'), 'Europe/Bratislava', 'de');
-        $this->assertEquals('Samstag, Sa., Nov, November, 20.11.2021 15:30', $d);
+        $d = Dt::f('l, D, M, F, j.n.Y H:i', $dtUtc, 'Europe/Bratislava', 'de');
+        $this->assertEquals('Freitag, Fr., Dez, Dezember, 31.12.2021 15:30', $d);
 
         // specific locale - translations - winter time
-        $d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-11-20 14:30:00'), 'Europe/Bratislava', 'cs');
-        $this->assertEquals('sobota, sob, lis, listopadu, 20.11.2021 15:30', $d);
+        $d = Dt::f('l, D, M, F, j.n.Y H:i', $dtUtc, 'Europe/Bratislava', 'cs');
+        $this->assertEquals('pátek, pát, pro, prosince, 31.12.2021 15:30', $d);
 
         // specific locale - translations - winter time
-        $d = Dt::f('l, D, M, F, j.n.Y H:i', new Dt('2021-11-20 14:30:00'), 'Europe/Bratislava', 'cs_CZ');
-        $this->assertEquals('sobota, sob, lis, listopadu, 20.11.2021 15:30', $d);
+        $d = Dt::f('l, D, M, F, j.n.Y H:i', $dtUtc, 'Europe/Bratislava', 'cs_CZ');
+        $this->assertEquals('pátek, pát, pro, prosince, 31.12.2021 15:30', $d);
     }
 
     public function testP()
@@ -202,25 +214,26 @@ class DtTest extends BaseTestCase
         // custom format
         $dt = Dt::p('12_24_2017 14:30:00', 'n_j_Y H:i:s');
         $this->assertIsObject($dt);
-        $this->assertEquals('2017-12-24 14:30:00', $dt->toDateTimeString());
+        $this->assertSame('2017-12-24 14:30:00 UTC', $dt->format('Y-m-d H:i:s e'));
 
-        // named format, en
+        // named format, no locale
         $dt = Dt::p('12/24/2017', 'date')->setTime(14, 30, 0);
-        $this->assertIsObject($dt);
-        $this->assertEquals('2017-12-24 14:30:00', $dt->toDateTimeString());
+        $this->assertSame('2017-12-24 14:30:00 UTC', $dt->format('Y-m-d H:i:s e'));
 
-        // named format, tz, en
-        $dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/Bratislava', 'en');
-        $this->assertEquals('2017-12-24 16:30:15', $dt->toDateTimeString());
-        $this->assertEquals('Europe/Bratislava', $dt->tzName);
+        // named format, no tz, sk locale        
+        $dt = Dt::p('24.12.2017', 'date', null, 'sk')->setTime(14, 30, 30);
+        $this->assertSame('2017-12-24 14:30:30 UTC', $dt->format('Y-m-d H:i:s e'));
+
+        // named format, tz, no locale
+        $dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/Bratislava');
+        $this->assertSame('2017-12-24 16:30:15 Europe/Bratislava', $dt->format('Y-m-d H:i:s e'));
 
         // named format, tz, sk
-        $dt = Dt::p('24.12.2017 16:30:15', 'date_time', 'Europe/London', 'sk');
-        $this->assertEquals('2017-12-24 16:30:15', $dt->toDateTimeString());
-        $this->assertEquals('Europe/London', $dt->tzName);
+        $dt = Dt::p('24.12.2017 16:30:15', 'date_time', 'America/Chicago', 'sk');
+        $this->assertSame('2017-12-24 16:30:15 America/Chicago', $dt->format('Y-m-d H:i:s e'));
 
         // invalid format
-        $dt = Dt::p('12/24/2017 4:30:15 PM', 'date_time', 'Europe/London', 'sk');
+        $dt = Dt::p('12/24/2017', 'date', null, 'sk');
         $this->assertFalse($dt);
     }
 
