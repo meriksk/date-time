@@ -2,11 +2,10 @@
 
 namespace meriksk\DateTime;
 
-use Exception;
+use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
-use IntlDateFormatter;
-use Carbon\Carbon;
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -17,7 +16,6 @@ use InvalidArgumentException;
  */
 class Dt extends Carbon
 {
-
     const FORMAT_DATE = 'date';
     const FORMAT_DATE_SHORT = 'date_short';
     const FORMAT_DATETIME = 'datetime';
@@ -60,68 +58,68 @@ class Dt extends Carbon
     private static $conversionTable = [
         self::TARGET_ICU => [
             // day
-            'j'            => 'd',        // 1 to 31
+            'j'            => 'd',     // 1 to 31
             'd'            => 'dd',    // 01 to 31
-            'D'            => 'eee',    // Mon through Sun
-            'l'            => 'EEEE',    // Sunday through Saturday
+            'D'            => 'eee',   // Mon through Sun
+            'l'            => 'EEEE',  // Sunday through Saturday
             'N'            => 'cc',    // 1 (for Monday) through 7 (for Sunday)
             'w'            => 'cc',    // 0 (for Sunday) through 6 (for Saturday)
-            'z'            => 'D',        // 0 through 365
+            'z'            => 'D',     // 0 through 365
             // week
             'W'            => 'ww',    // Examples: 42 (the 42nd week in the year)
             // month
-            'F'            => 'MMMM',    // January through December
+            'F'            => 'MMMM',  // January through December
             'm'            => 'MM',    // 01 through 12
-            'M'            => 'MMM',    // Jan through Dec
-            'n'            => 'M',        // 1 through 12
-            't'            => '',        // 28 through 31
+            'M'            => 'MMM',   // Jan through Dec
+            'n'            => 'M',     // 1 through 12
+            't'            => '',      // 28 through 31
             // year
-            't'            => 'Y',        // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
-            'Y'            => 'yyyy',    // Examples: 1999 or 2003
+            't'            => 'Y',     // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
+            'Y'            => 'yyyy',  // Examples: 1999 or 2003
             'y'            => 'yy',    // Examples: 99 or 03
             // time
-            'a'            => 'a',        // am or pm
-            'A'            => 'a',        // AM or PM
-            'B'            => 'SSS',    // 000 through 999 (fractional second)
-            'g'            => 'h',        // 1 through 12
-            'G'            => 'k',        // 0 through 23
+            'a'            => 'a',     // am or pm
+            'A'            => 'a',     // AM or PM
+            'B'            => 'SSS',   // 000 through 999 (fractional second)
+            'g'            => 'h',     // 1 through 12
+            'G'            => 'k',     // 0 through 23
             'h'            => 'hh',    // 01 through 12
             'H'            => 'HH',    // 00 through 23
             'i'            => 'mm',    // 00 to 59
             's'            => 'ss',    // 00 to 59
             // timezone
             'e'            => 'VV',    // Examples: UTC, GMT, Atlantic/Azores
-            'O'            => 'ZZZ',    // Example: +0200 (Difference to Greenwich time (GMT) in hours)
-            'P'            => 'xxx',    // Example: +02:00
+            'O'            => 'ZZZ',   // Example: +0200 (Difference to Greenwich time (GMT) in hours)
+            'P'            => 'xxx',   // Example: +02:00
             'T'            => 'zz',    // Examples: EST, MDT (Timezone abbreviation)
         ],
         self::TARGET_CARBON => [
             // day
-            'j'            => 'D',        // 1 to 31
+            'j'            => 'D',     // 1 to 31
             'd'            => 'DD',    // 01 to 31
-            'D'            => 'ddd',    // Mon through Sun
-            'l'            => 'dddd',    // Sunday through Saturday
-            'N'            => 'E',        // 1 (for Monday) through 7 (for Sunday)
-            'w'            => 'e',        // 0 (for Sunday) through 6 (for Saturday)
-            'z'            => '',        // 0 through 365
+            'D'            => 'ddd',   // Mon through Sun
+            'l'            => 'dddd',  // Sunday through Saturday
+            'N'            => 'E',     // 1 (for Monday) through 7 (for Sunday)
+            'w'            => 'e',     // 0 (for Sunday) through 6 (for Saturday)
+            'z'            => '',      // 0 through 365
             // week
             'W'            => 'w',        // Examples: 42 (the 42nd week in the year)
             // month
-            'F'            => 'MMMM',    // January through December
+            'F'            => 'MMMM',  // January through December
             'm'            => 'MM',    // 01 through 12
-            'M'            => 'MMM',    // Jan through Dec
-            'n'            => 'M',        // 1 through 12
-            't'            => '',        // 28 through 31
+            'M'            => 'MMM',   // Jan through Dec
+            'n'            => 'M',     // 1 through 12
+            't'            => '',      // 28 through 31
             // year
-            't'            => 'Y',        // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
-            'Y'            => 'YYYY',    // Examples: 1999 or 2003
+            't'            => 'Y',     // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
+            'Y'            => 'YYYY',  // Examples: 1999 or 2003
             'y'            => 'YY',    // Examples: 99 or 03
             // time
-            'a'            => 'a',        // am or pm
-            'A'            => 'A',        // AM or PM
-            'B'            => 'SSS',    // 000 through 999 (fractional second)
-            'g'            => 'h',        // 1 through 12
-            'G'            => 'H',        // 0 through 23
+            'a'            => 'a',     // am or pm
+            'A'            => 'A',     // AM or PM
+            'B'            => 'SSS',   // 000 through 999 (fractional second)
+            'g'            => 'h',     // 1 through 12
+            'G'            => 'H',     // 0 through 23
             'h'            => 'hh',    // 01 through 12
             'H'            => 'HH',    // 00 through 23
             'i'            => 'mm',    // 00 to 59
@@ -129,8 +127,8 @@ class Dt extends Carbon
             // timezone
             'e'            => 'zz',    // Examples: UTC, GMT, Atlantic/Azores
             'O'            => 'ZZ',    // Example: +0200 (Difference to Greenwich time (GMT) in hours)
-            'P'            => 'Z',        // Example: +02:00
-            'T'            => 'z',        // Examples: EST, MDT (Timezone abbreviation)
+            'P'            => 'Z',     // Example: +02:00
+            'T'            => 'z',     // Examples: EST, MDT (Timezone abbreviation)
         ],
         self::TARGET_CLIB => [
             // day
@@ -140,7 +138,7 @@ class Dt extends Carbon
             'l'            => '%A',    // Sunday through Saturday
             'N'            => '%u',    // 1 (for Monday) through 7 (for Sunday)
             'w'            => '%w',    // 0 (for Sunday) through 6 (for Saturday)
-            'z'            => '',        // 0 through 365
+            'z'            => '',      // 0 through 365
             // week
             'W'            => '%W',    // Examples: 42 (the 42nd week in the year)
             // month
@@ -148,7 +146,7 @@ class Dt extends Carbon
             'm'            => '%m',    // 01 through 12
             'M'            => '%b',    // Jan through Dec
             'n'            => '%m',    // 1 through 12
-            't'            => '',        // 28 through 31
+            't'            => '',      // 28 through 31
             // year
             't'            => '%Y',    // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
             'Y'            => '%Y',    // Examples: 1999 or 2003
@@ -156,7 +154,7 @@ class Dt extends Carbon
             // time
             'a'            => '%P',    // am or pm
             'A'            => '%p',    // AM or PM
-            'B'            => '',        // 000 through 999 (fractional second)
+            'B'            => '',      // 000 through 999 (fractional second)
             'g'            => '%I',    // 1 through 12 - "%l" does not work :(
             'G'            => '%k',    // 0 through 23
             'h'            => '%I',    // 01 through 12
@@ -170,31 +168,31 @@ class Dt extends Carbon
             'T'            => '%Z',    // Examples: EST, MDT (Timezone abbreviation)
         ],
         self::TARGET_MOMENT => [
-            'j'            => 'D',        // 1 to 31
+            'j'            => 'D',     // 1 to 31
             'd'            => 'DD',    // 01 to 31
-            'D'            => 'ddd',    // Mon through Sun
-            'l'            => 'dddd',    // Sunday through Saturday
-            'N'            => 'E',        // 1 (for Monday) through 7 (for Sunday)
-            'w'            => 'd',        // 0 (for Sunday) through 6 (for Saturday)
-            'z'            => 'DDD',    // 0 through 365
+            'D'            => 'ddd',   // Mon through Sun
+            'l'            => 'dddd',  // Sunday through Saturday
+            'N'            => 'E',     // 1 (for Monday) through 7 (for Sunday)
+            'w'            => 'd',     // 0 (for Sunday) through 6 (for Saturday)
+            'z'            => 'DDD',   // 0 through 365
             // week
-            'W'            => 'w',        // Examples: 42 (the 42nd week in the year)
+            'W'            => 'w',     // Examples: 42 (the 42nd week in the year)
             // month
-            'F'            => 'MMMM',    // January through December
+            'F'            => 'MMMM',  // January through December
             'm'            => 'MM',    // 01 through 12
-            'M'            => 'MMM',    // Jan through Dec
-            'n'            => 'M',        // 1 through 12
-            't'            => '',        // 28 through 31
+            'M'            => 'MMM',   // Jan through Dec
+            'n'            => 'M',     // 1 through 12
+            't'            => '',      // 28 through 31
             // year
-            't'            => 'Y',        // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
-            'Y'            => 'YYYY',    // Examples: 1999 or 2003
-            'y'            => 'YY',        // Examples: 99 or 03
+            't'            => 'Y',     // Examples: 1999 or 2003 (ISO-8601 week-numbering year)
+            'Y'            => 'YYYY',  // Examples: 1999 or 2003
+            'y'            => 'YY',    // Examples: 99 or 03
             // time
-            'a'            => 'a',        // am or pm
-            'A'            => 'A',        // AM or PM
-            'B'            => 'SSS',    // 000 through 999 (fractional second)
-            'g'            => 'h',        // 1 through 12
-            'G'            => 'H',        // 0 through 23
+            'a'            => 'a',     // am or pm
+            'A'            => 'A',     // AM or PM
+            'B'            => 'SSS',   // 000 through 999 (fractional second)
+            'g'            => 'h',     // 1 through 12
+            'G'            => 'H',     // 0 through 23
             'h'            => 'hh',    // 01 through 12
             'H'            => 'HH',    // 00 through 23
             'i'            => 'mm',    // 00 to 59
@@ -202,7 +200,7 @@ class Dt extends Carbon
             // timezone
             'e'            => 'zz',    // Examples: UTC, GMT, Atlantic/Azores
             'O'            => 'ZZ',    // Example: +0200 (Difference to Greenwich time (GMT) in hours)
-            'P'            => 'Z',        // Example: +02:00
+            'P'            => 'Z',     // Example: +02:00
             'T'            => 'zz',    // Examples: EST, MDT (Timezone abbreviation)
         ],
         self::TARGET_YII2 => [],
@@ -223,54 +221,54 @@ class Dt extends Carbon
             case in_array($locale, ['en', 'us']):
             default:
                 $def = [
-                    'date'                    => 'n/j/Y',
+                    'date'                  => 'n/j/Y',
                     'date_short'            => 'n/j/Y',
-                    'date_medium'            => 'M j, Y',
-                    'date_long'                => 'F j, Y',
-                    'date_full'                => 'F j, Y',
-                    'date_time'                => 'n/j/Y g:i:s A',
-                    'date_time_short'        => 'n/j/Y g:i A',
+                    'date_medium'           => 'M j, Y',
+                    'date_long'             => 'F j, Y',
+                    'date_full'             => 'F j, Y',
+                    'date_time'             => 'n/j/Y g:i:s A',
+                    'date_time_short'       => 'n/j/Y g:i A',
                     'date_time_short_tz'    => 'n/j/Y g:i A T',
-                    'date_time_medium'        => 'M j, Y g:i A',
+                    'date_time_medium'      => 'M j, Y g:i A',
                     'date_time_long'        => 'F j, Y g:i:s A',
                     'date_time_full'        => 'F j, Y g:i:s.u A T',
-                    'date_time_tz'            => 'n/j/Y g:i:s A T',
-                    'date_time_ms'            => 'n/j/Y g:i:s.u A',
+                    'date_time_tz'          => 'n/j/Y g:i:s A T',
+                    'date_time_ms'          => 'n/j/Y g:i:s.u A',
                     'date_human'            => 'D, M j',
-                    'time'                    => 'g:i:s A',
+                    'time'                  => 'g:i:s A',
                     'time_short'            => 'g:i A',
-                    'time_short_tz'            => 'g:i A T',
-                    'time_medium'            => 'g:i:s A',
-                    'time_long'                => 'g:i:s A',
-                    'time_full'                => 'g:i:s A T',
-                    'time_ms'                => 'g:i.u A',
-                    'xxx'                    => 'g:i.u A',
+                    'time_short_tz'         => 'g:i A T',
+                    'time_medium'           => 'g:i:s A',
+                    'time_long'             => 'g:i:s A',
+                    'time_full'             => 'g:i:s A T',
+                    'time_ms'               => 'g:i.u A',
+                    'xxx'                   => 'g:i.u A',
                 ];
                 break;
 
             case in_array($locale, ['sk', 'cs', 'da', 'de', 'es', 'fr', 'hu']):
                 $def = [
-                    'date'                    => 'j.n.Y',
+                    'date'                  => 'j.n.Y',
                     'date_short'            => 'j.n.Y',
-                    'date_medium'            => 'j M Y',
-                    'date_long'                => 'j F Y',
-                    'date_full'                => 'j F Y e',
-                    'date_time'                => 'j.n.Y H:i:s',
-                    'date_time_short'        => 'j.n.Y H:i',
+                    'date_medium'           => 'j M Y',
+                    'date_long'             => 'j F Y',
+                    'date_full'             => 'j F Y e',
+                    'date_time'             => 'j.n.Y H:i:s',
+                    'date_time_short'       => 'j.n.Y H:i',
                     'date_time_short_tz'    => 'j.n.Y H:i T',
-                    'date_time_medium'        => 'j. M Y H:i',
+                    'date_time_medium'      => 'j. M Y H:i',
                     'date_time_long'        => 'j. F Y H:i:s',
                     'date_time_full'        => 'j. F Y H:i:s T',
-                    'date_time_tz'            => 'j.n.Y H:i:s T',
-                    'date_time_ms'            => 'j.n.Y H:i:s.u',
+                    'date_time_tz'          => 'j.n.Y H:i:s T',
+                    'date_time_ms'          => 'j.n.Y H:i:s.u',
                     'date_human'            => 'j.n.Y',
-                    'time'                    => 'H:i:s',
+                    'time'                  => 'H:i:s',
                     'time_short'            => 'H:i',
-                    'time_short_tz'            => 'H:i T',
-                    'time_medium'            => 'H:i:s',
-                    'time_long'                => 'H:i:s',
-                    'time_full'                => 'H:i:s T',
-                    'time_ms'                => 'H:i:s.u',
+                    'time_short_tz'         => 'H:i T',
+                    'time_medium'           => 'H:i:s',
+                    'time_long'             => 'H:i:s',
+                    'time_full'             => 'H:i:s T',
+                    'time_ms'               => 'H:i:s.u',
                 ];
                 break;
         } //switch
@@ -317,9 +315,11 @@ class Dt extends Carbon
         if ($locale && is_string($locale)) {
             $f = self::getFormat($format, self::TARGET_MOMENT, $locale);
             $dt->setLocale($locale);
+
             return $dt->isoFormat($f, $format);
         } else {
             $f = self::getFormat($format);
+
             return $dt->format($f);
         }
     }
@@ -395,11 +395,11 @@ class Dt extends Carbon
      * @param string $targetFormat
      * @return string date format
      */
-    public static function convertFormat($format, $targetFormat, $locale = null): string
-    {
-        if (empty($format)) {
-            return null;
-        }
+    public static function convertFormat(
+        string $format,
+        string $targetFormat,
+        string|null $locale = null
+    ): string {
 
         // YII2 === ICU
         if ($targetFormat === self::TARGET_YII2) {
@@ -436,13 +436,17 @@ class Dt extends Carbon
 
     /**
      * Get timestamp of given date
-     * @see DateTime::boundaries()
+     * @param string $date
+     * @param string|DateTimeZone|null $timezone
      * @return int
      */
-    public static function createTimestamp($date, $timezone = null)
-    {
+    public static function createTimestamp(
+        string $date,
+        string|DateTimeZone|null $timezone = null
+    ) {
         $tz = $timezone ? $timezone : self::$timezone;
         $dt = new Dt($date, $tz);
+
         return $dt ? $dt->getTimestamp() : false;
     }
 
@@ -481,12 +485,17 @@ class Dt extends Carbon
      * @param string $period
      * @param int|float $value the $value count passed in
      * @param bool $returnObject
-     * @param int|\DateTime $baseTime
-     * @param string $timezone
+     * @param int|string|Dt|null $baseTime
+     * @param string|DateTimeZone|null $timezone
      * @return int|\meriksk\DateTime\Dt
      */
-    public static function getRelativeTime($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
-    {
+    public static function getRelativeTime(
+        string $period,
+        int $value = 1,
+        bool $returnObject = true,
+        int|string|Dt|null $baseTime = null,
+        string|DateTimeZone|null $timezone = null
+    ) {
         $tz = $timezone ? $timezone : self::$timezone;
 
         if (is_numeric($baseTime)) {
@@ -505,7 +514,7 @@ class Dt extends Carbon
         }
 
         switch ($period) {
-                // second
+            // second
             case 's':
             case 'sec':
             case 'second':
@@ -542,13 +551,16 @@ class Dt extends Carbon
             case 'M':
             case 'month':
             case 'months':
-                $dt->subMonths((int)$value);
+                //$dt->subMonths((int) $value);
+                $dt->subMonthsNoOverflow((int) $value);
                 break;
                 // year
             case 'y':
+            case 'Y':
             case 'year':
             case 'years':
-                $dt->subYears((int)$value);
+                //$dt->subYears((int) $value);
+                $dt->subYearsNoOverflow((int) $value);
                 break;
                 // default modifier
             default:
@@ -576,32 +588,42 @@ class Dt extends Carbon
      * 'M', 'mo', 'month'<br>
      * '-1M', '-1mo', 'previous month', 'month ago', 'month_ago'<br>
      * '+1M', '+1mo', 'next month', 'next_month'<br>
-     * 'y', 'year', 'this year', 'this_year', 'current year', 'current_year'<br>
+     * 'y', 'Y', 'year', 'this year', 'this_year', 'current year', 'current_year'<br>
      * '-1y', 'previous year', 'year ago', 'year_ago'<br>
      * '+1y', 'next year', 'next_year'<br>
-     * 
+     *
      * @param bool $returnObject
-     * @param int|string|Dt $baseTime 
-     * @param string $timezone
+     * @param int|string|Dt|null $baseTime
+     * @param string|DateTimeZone|null $timezone
+     * @param bool $exclusive Whether the end boundary is exclusive (uses `<` instead of `<=`)
      * @return bool|array
-     * @throws \Exception
+     * @throws Exception
      * @link https://gist.github.com/sepehr/6351425
      */
-    public static function getBoundaries(string $period, bool $returnObject = true, int|string|Dt $baseTime = null, $timezone = null)
-    {
+    public static function getBoundaries(
+        string $period,
+        bool $returnObject = true,
+        int|string|Dt|null $baseTime = null,
+        string|DateTimeZone|null $timezone = null,
+        bool $exclusive = false
+    ) {
         // time range aliases
         switch ($period) {
+            case 's':
             case 'sec':
             case 'second':
                 $period = 'now/s';
                 break;
+            case 'm':
             case 'min':
             case 'minute':
                 $period = 'now/m';
                 break;
+            case 'h':
             case 'hour':
                 $period = 'now/h';
                 break;
+            case 'd':
             case 'day':
             case 'today':
                 $period = 'now/d';
@@ -616,6 +638,7 @@ class Dt extends Carbon
             case 'next_day':
                 $period = '+1d/d';
                 break;
+            case 'w':
             case 'week':
                 $period = 'now/w';
                 break;
@@ -629,6 +652,7 @@ class Dt extends Carbon
             case 'next_week':
                 $period = '+1w/w';
                 break;
+            case 'M':
             case 'mo':
             case 'month':
                 $period = 'now/M';
@@ -642,6 +666,7 @@ class Dt extends Carbon
             case 'next_month':
                 $period = '+1M/M';
                 break;
+            case 'y':
             case 'year':
                 $period = 'now/y';
                 break;
@@ -655,7 +680,7 @@ class Dt extends Carbon
                 $period = '+1y/y';
                 break;
             default:
-                // absolute time range (1d, -1d, +1w, ...)        
+                // absolute time range (1d, -1d, +1w, ...)
                 if (preg_match('/^([\+\-])?(\d+)?([a-zA-Z]{1,2})$/', $period, $m)) {
                     //$modifyOperator = $m[1] === '-' ? '-' : '+';
                     //$count = (int)$m[2];
@@ -671,8 +696,8 @@ class Dt extends Carbon
                 break;
         }
 
-        $dt0 = self::resolveTime($period, false, $baseTime, $timezone);
-        $dt1 = self::resolveTime($period, true, $baseTime, $timezone);
+        $dt0 = self::resolveTime($period, false, $baseTime, $timezone, $exclusive);
+        $dt1 = self::resolveTime($period, true, $baseTime, $timezone, $exclusive);
 
         return $returnObject === true ? [$dt0, $dt1] : [$dt0->getTimestamp(), $dt1->getTimestamp()];
     }
@@ -682,10 +707,9 @@ class Dt extends Carbon
      * @param string $period
      * @param bool $returnObject
      * @param int|float $value the $value count passed in
-     * @param int|\DateTime $baseTime Start time
+     * @param int|string|Dt|null $baseTime Start time
      * @param string $timezone
      * @return boolean|\meriksk\DateTime\Dt[]
-     * @throws InvalidIntervalException
      */
     public static function getRelativeTimeBoundaries($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
     {
@@ -713,100 +737,169 @@ class Dt extends Carbon
     }
 
     /**
-     * We supports the following time units: 
+     * Parse request (reads params from URL)
+     *
+     * @param array|null $requestData
+     * @param string|DateTimeZone|null|null $timezone
+     * @param string|null $defaultT0
+     * @param string|null $defaultT1
+     * @return array
+     */
+    public static function parseRequest(
+        array|null $requestData = null,
+        string|DateTimeZone|null $timezone = null,
+        ?string $defaultT0 = null,
+        ?string $defaultT1 = null
+    ): array {
+        $data = [];
+
+        if (is_array($requestData)) {
+            $data = $requestData;
+        } else {
+            $data = $_GET;
+        }
+
+        if (!empty($data['t0'])) {
+            $data['t0'] = urldecode($data['t0']);
+        } else {
+            $data['t0'] = $defaultT0 ?? 'now-1d';
+        }
+
+        if (!empty($data['t1'])) {
+            $data['t1'] = urldecode($data['t1']);
+        } else {
+            $data['t1'] =  $defaultT1 ?? 'now';
+        }
+
+        try {
+            $data['dt0'] = self::resolveTime($data['t0'], timezone: $timezone);
+            $data['dt1'] = self::resolveTime($data['t1'], true, timezone: $timezone);
+            $data['ts0'] = $data['dt0']->getTimestamp();
+            $data['ts1'] = $data['dt1']->getTimestamp();
+        } catch (Exception $e) {
+            $data['t0'] = 'now-1d';
+            $data['t1'] = 'now';
+
+            $data['dt0'] = self::resolveTime($data['t0'], timezone: $timezone);
+            $data['dt1'] = self::resolveTime($data['t1'], true, timezone: $timezone);
+            $data['ts0'] = $data['dt0']->getTimestamp();
+            $data['ts1'] = $data['dt1']->getTimestamp();
+        }
+
+        $data['diff'] = $data['dt1']->modify('1 MICROSECONDS')->diff($data['dt0']);
+
+        return $data;
+    }
+
+    /**
+     * We supports the following time units:
      * s (seconds), m (minutes), h (hours), d (days), w (weeks), M (months) and y (years).
-     * 
-     * The minus operator enables you to step back in time, relative to the current date and time, or now. 
-     * If you want to display the full period of the unit (day, week, month, etc…), append /<time unit> to the end. 
-     * The plus operator enables you to step forward in time, relative to now. 
+     *
+     * The minus operator enables you to step back in time, relative to the current date and time, or now.
+     * If you want to display the full period of the unit (day, week, month, etc…), append /<time unit> to the end.
+     * The plus operator enables you to step forward in time, relative to now.
      * For example, you can use this feature to look at predicted data in the future.
-     * 
+     *
      * Last 5 minutes:	    now-5m
      * The day so far:	    now/d
      * This week:           w
      * Previous week:       now-1w
      * This month:          M
      * Previous Month:      now-1M or -1M
-     * This Year:           y
+     * This Year:           y, Y
      *
-     * @param integer|string|DateTime|null $datetime
+     * @param int|string|Datetime $datetime Date to resolve (integer, string, DateTime)
      * @param bool $endOfTimeRange
-     * @param string|DateTimeZone $timezone
-     * @param int|string|Dt $baseTime
+     * @param int|string|Datetime|null $baseTime
+     * @param string|DateTimeZone|null $timezone
+     * @param bool $exclusive Whether the end boundary is exclusive (uses `<` instead of `<=`)
      * @return Dt|null
      */
-    public static function resolveTime(int|string $datetime = null, bool $endOfTimeRange = false, int|string|Dt $baseTime = null, string|DateTimeZone $timezone = null): ?Dt
-    {
-        if (!$datetime) {
-            return null;
-        }
-
+    public static function resolveTime(
+        int|string|Datetime|null $datetime = null,
+        bool $endOfTimeRange = false,
+        int|string|Datetime|null $baseTime = null,
+        string|DateTimeZone|null $timezone = null,
+        bool $exclusive = false
+    ): ?Dt {
+        // timezone of the returned Dt object
         $tz = $timezone ? $timezone : self::$timezone;
 
-        // number (timestamp or miliseconds)
-        // example: 
-        // 1716558968
-        // 1716558968965
-        if (is_numeric($datetime)) {
+        // empty datetime
+        if (empty($datetime)) {
+            return new Dt($baseTime, $tz);
+        }
 
-            $len = strlen($datetime);
-            if ($len > 11) {
-                $ts = (int)($datetime / 1000);
-                $miliseconds = $datetime % 1000;
-            } else {
-                $ts = (int)$datetime;
-                $miliseconds = 0;
-            }
+        // number
+        // seconds:      1719915481
+        // milliseconds: 1719915488001
+        // microseconds: 1719915488000001
+        if (is_int($datetime) || is_string($datetime)) {
+            if (preg_match("/\b(\d{10}|\d{13}|\d{16}|\d{19})\b/", $datetime)) {
+                switch (strlen($datetime)) {
+                    case 10:
+                        // seconds
+                        $dt = new Dt((int) $datetime, $tz);
+                        break;
+                    case 13:
+                        // milliseconds
+                        $time = substr($datetime, 0, 10) . '.' . substr($datetime, 10, 3);
+                        $dt = Dt::createFromFormat('U.v', $time);
+                        break;
+                    case 16:
+                        // microseconds
+                        $time = substr($datetime, 0, 10) . '.' . substr($datetime, 10, 6);
+                        $dt = Dt::createFromFormat('U.u', $time, $tz);
+                        break;
+                    default:
+                        $dt = null;
+                }
 
-            $dt = static::createFromFormat('U.v', "{$ts}.{$miliseconds}");
-            if ($dt) {
-                if ($tz) {
+                if ($dt && $tz) {
                     $dt->setTimezone($tz);
                 }
 
                 return $dt;
-            }
-        }
-
-        // DateTime object
-        if (is_object($datetime) && $datetime instanceof Dt) {
-            return $datetime;
+            }// if
         }
 
         // absolute time
-        // example: 
+        // example:
         // -1d/d - -1d/d ... Yesterday
-        // now/d - now/d ... The day so far	
+        // now/d - now/d ... The day so far
         $absoluteTime = false;
         $absoluteTimeUnit = null;
 
-        if (strpos($datetime, '/') !== false) {
-            $parts = explode('/', urldecode($datetime));
-            if (count($parts) === 2) {
-                $absoluteTime = true;
-                $datetime = trim($parts[0]);
-                if ($datetime === 'now') {
-                    $datetime = 'd';
+        if (is_string($datetime)) {
+
+            if (strpos($datetime, '/') !== false) {
+                $parts = explode('/', urldecode($datetime));
+
+                if (count($parts) === 2) {
+                    $absoluteTime = true;
+                    $datetime = trim($parts[0]);
+                    if ($datetime === 'now') {
+                        $datetime = 'd';
+                    }
+
+                    $absoluteTimeUnit = $parts[1] ?? null;
                 }
-
-                $absoluteTimeUnit = $parts[1] ?? null;
             }
-        }
 
-        // now
-        // example: 
-        // now
-        // now/d
-        if (is_string($datetime) && strtolower($datetime) === 'now') {
-            $dt = new Dt('now', $tz);
-            return self::setDatetimeBoundary($dt, $absoluteTimeUnit, $endOfTimeRange);
-        }
+            // now/d
+            if (strtolower($datetime) === 'now') {
+                $dt = new Dt('now', $tz);
 
-        // exact time in format yyyy-MM-ddThh:mm:ss(.mmmmmm)
-        // example: 2024-05-24T15:55:30.555555
-        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})(T(\d{2}):(\d{2}):(\d{2})(\.(\d{1,6}))?)?$/', $datetime, $m)) {
-            $dt = new Dt($datetime, $tz);
-            return self::setDatetimeBoundary($dt, $absoluteTimeUnit, $endOfTimeRange);
+                return self::setDatetimeBoundary($dt, $absoluteTimeUnit, $endOfTimeRange, $exclusive);
+            }
+
+            // exact time in format yyyy-MM-ddThh:mm:ss(.mmmmmm)
+            // example: 2024-05-24T15:55:30.555555
+            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})(T(\d{2}):(\d{2}):(\d{2})(\.(\d{1,6}))?)?$/', $datetime, $m)) {
+                $dt = new Dt($datetime, $tz);
+
+                return self::setDatetimeBoundary($dt, $absoluteTimeUnit, $endOfTimeRange, $exclusive);
+            }
         }
 
         $datetime = preg_replace('/[^a-zA-Z0-9\+\-\s]/', '', $datetime);
@@ -820,6 +913,9 @@ class Dt extends Carbon
                 $dt = static::createFromTimestamp($baseTime, $tz);
             } elseif (is_object($baseTime) && $baseTime instanceof DateTime) {
                 $dt = clone $baseTime;
+                if ($tz) {
+                    $dt->setTimezone($tz);
+                }
             } else {
                 $dt = new Dt($baseTime, $tz);
             }
@@ -827,24 +923,29 @@ class Dt extends Carbon
             $dt = new Dt('now', $tz);
         }
 
-        // absolute time range (1d, -1d, +1w, ...)        
+        // check dt instance
+        if ($dt instanceof \DateTimeInterface) {
+            $dt = new Dt($dt);
+        }
+
+        // absolute time range (1d, -1d, +1w, ...)
         if (preg_match('/^([\+\-])?(\d+)?([a-zA-Z]{1,2})$/', $datetime, $m)) {
 
             $modifyOperator = $m[1] === '-' ? '-' : '+';
-            $count = (int)$m[2];
+            $count = (int) $m[2];
             $timeUnit = $m[3];
 
             // relative range (now-1d, now+1d, ...)
         } elseif (preg_match('/^now([\+\-\s])(\d+)([a-zA-Z]{1,2})$/', $datetime, $m)) {
 
             $modifyOperator = $m[1] === '-' ? '-' : '+';
-            $count = (int)$m[2];
+            $count = (int) $m[2];
             $timeUnit = $m[3];
         }
 
-        // check time unit        
+        // check time unit
         if (!in_array($timeUnit, self::$allowedTimeUnits)) {
-            throw new Exception('Not supported time unit. List of supported time units: s (seconds), m (minutes), h (hours), d (days), w (weeks), M (months), mo (monts) and y (years)');
+            throw new Exception('Not supported time unit. List of supported time units: s (seconds), m (minutes), h (hours), d (days), w (weeks), M (months), mo (months) and y (years)');
         }
 
         if ($modifyOperator === '-') {
@@ -868,6 +969,7 @@ class Dt extends Carbon
                 case 'mo':
                     $dt->subMonthsNoOverflow($count);
                     break;
+                case 'Y':
                 case 'y':
                     $dt->subYearsNoOverflow($count);
                     break;
@@ -893,6 +995,7 @@ class Dt extends Carbon
                 case 'mo':
                     $dt->addMonthsNoOverflow($count);
                     break;
+                case 'Y':
                 case 'y':
                     $dt->addYearsNoOverflow($count);
                     break;
@@ -900,7 +1003,7 @@ class Dt extends Carbon
         }
 
         if ($absoluteTime) {
-            $dt = self::setDatetimeBoundary($dt, $absoluteTimeUnit, $endOfTimeRange);
+            $dt = self::setDatetimeBoundary($dt, $absoluteTimeUnit, $endOfTimeRange, $exclusive);
         } else {
             if (self::$lastMicroseconds) {
                 $dt->setTime($dt->format('G'), $dt->format('i'), $dt->format('s'), self::$lastMicroseconds);
@@ -918,18 +1021,27 @@ class Dt extends Carbon
      * Set datetime setDatetimeBoundary
      * The following time units are supported:
      * s (seconds), m (minutes), h (hours), d (days), w (weeks), M (months), and y (years)
-     * 
+     *
      * @param Dt $dt
      * @param ?string $timeUnit The following time units are supported:
      * @param bool $endOfRange
-     * @return DateTime
+     * @param bool $exclusive Whether the end boundary is exclusive (uses `<` instead of `<=`)
+     * @return Dt
      */
-    public static function setDatetimeBoundary(Dt $dt, ?string $timeUnit, bool $endOfRange = false)
-    {
+    public static function setDatetimeBoundary(
+        Dt $dt,
+        ?string $timeUnit,
+        bool $endOfRange = false,
+        bool $exclusive = false
+    ) {
         switch ($timeUnit) {
             case 's':
                 if ($endOfRange) {
-                    $dt->endOfSecond();
+                    if ($exclusive) {
+
+                    } else {
+                        $dt->endOfSecond();
+                    }
                     //$dt->setTime($dt->format('G'), $dt->format('i'), $dt->format('s'), 999999);
                 } else {
                     $dt->startOfSecond();
@@ -939,7 +1051,11 @@ class Dt extends Carbon
 
             case 'm':
                 if ($endOfRange) {
-                    $dt->endOfMinute();
+                    if ($exclusive) {
+                        $dt->addMinute()->startOfMinute();
+                    } else {
+                        $dt->endOfMinute();
+                    }
                     //$dt->setTime($dt->format('G'), $dt->format('i'), 59, 999999);
                 } else {
                     $dt->startOfMinute();
@@ -949,7 +1065,11 @@ class Dt extends Carbon
 
             case 'h':
                 if ($endOfRange) {
-                    $dt->setTime($dt->format('G'), 59, 59, 999999);
+                    if ($exclusive) {
+                        $dt->addHour()->startOfHour();
+                    } else {
+                        $dt->setTime($dt->format('G'), 59, 59, 999999);
+                    }
                 } else {
                     $dt->setTime($dt->format('G'), 0, 0, 0);
                 }
@@ -957,7 +1077,11 @@ class Dt extends Carbon
 
             case 'd':
                 if ($endOfRange) {
-                    $dt->setTime(23, 59, 59, 999999);
+                    if ($exclusive) {
+                        $dt->addDay()->startOfDay();
+                    } else {
+                        $dt->setTime(23, 59, 59, 999999);
+                    }
                 } else {
                     $dt->setTime(0, 0, 0, 0);
                 }
@@ -965,8 +1089,12 @@ class Dt extends Carbon
 
             case 'w':
                 if ($endOfRange) {
-                    $dt->modify('sunday this week');
-                    $dt->setTime(23, 59, 59, 999999);
+                    if ($exclusive) {
+                        $dt->startOfWeek()->addWeek();
+                    } else {
+                        $dt->modify('sunday this week');
+                        $dt->setTime(23, 59, 59, 999999);
+                    }
                 } else {
                     $dt->modify('monday this week');
                     $dt->setTime(0, 0, 0, 0);
@@ -976,7 +1104,11 @@ class Dt extends Carbon
             case 'M':
             case 'mo':
                 if ($endOfRange) {
-                    $dt->endOfMonth();
+                    if ($exclusive) {
+                        $dt->startOfMonth()->addMonthNoOverflow();
+                    } else {
+                        $dt->endOfMonth();
+                    }
                     //$dt->modify('last day of this month');
                     //$dt->setTime(23, 59, 59, 999999);
                 } else {
@@ -987,12 +1119,19 @@ class Dt extends Carbon
                 break;
 
             case 'y':
+            case 'Y':
                 if ($endOfRange) {
-                    $dt->setDate($dt->format('Y'), 12, 31);
-                    $dt->setTime(23, 59, 59, 999999);
+                    if ($exclusive) {
+                        $dt->startOfYear()->addYearNoOverflow();
+                    } else {
+                        $dt->endOfYear();
+                    }
+                    //$dt->setDate($dt->format('Y'), 12, 31);
+                    //$dt->setTime(23, 59, 59, 999999);
                 } else {
-                    $dt->setDate($dt->format('Y'), 1, 1);
-                    $dt->setTime(0, 0, 0, 0);
+                    $dt->startOfYear();
+                    //$dt->setDate($dt->format('Y'), 1, 1);
+                    //$dt->setTime(0, 0, 0, 0);
                 }
                 break;
         }
@@ -1027,10 +1166,11 @@ class Dt extends Carbon
     /**
      * Converts a MySQL Timestamp to Unix
      *
-     * @param int MySQL timestamp YYYY-MM-DD HH:MM:SS
+     * @param int $time MySQL timestamp YYYY-MM-DD HH:MM:SS
+     * @param bool $gmtDate Get Unix timestamp for a GMT date
      * @return int Unix timestamp
      */
-    public static function mysqlToUnix(string $time = '')
+    public static function mysqlToUnix(string $time = '', bool $gmtDate = false)
     {
         // We'll remove certain characters for backward compatibility
         // since the formatting changed with MySQL 4.1
@@ -1038,14 +1178,25 @@ class Dt extends Carbon
         $time = str_replace(['-', ':', ' '], '', $time);
 
         // YYYYMMDDHHMMSS
-        return mktime(
-            substr($time, 8, 2),
-            substr($time, 10, 2),
-            substr($time, 12, 2),
-            substr($time, 4, 2),
-            substr($time, 6, 2),
-            substr($time, 0, 4)
-        );
+        if ($gmtDate === true) {
+            return gmmktime(
+                substr($time, 8, 2),
+                substr($time, 10, 2),
+                substr($time, 12, 2),
+                substr($time, 4, 2),
+                substr($time, 6, 2),
+                substr($time, 0, 4)
+            );
+        } else {
+            return mktime(
+                substr($time, 8, 2),
+                substr($time, 10, 2),
+                substr($time, 12, 2),
+                substr($time, 4, 2),
+                substr($time, 6, 2),
+                substr($time, 0, 4)
+            );
+        }
     }
 
     /**
@@ -1073,10 +1224,10 @@ class Dt extends Carbon
 
         // support time as string ("05:00")
         if (is_string($start) && preg_match('/^([0-9]{2}):([0-9]{2})$/', $start, $m)) {
-            $start = ((int)$m[1] * 60) + (int)$m[2];
+            $start = ((int) $m[1] * 60) + (int) $m[2];
         }
         if (is_string($end) && preg_match('/^([0-9]{2}):([0-9]{2})$/', $end, $m)) {
-            $end = ((int)$m[1] * 60) + (int)$m[2];
+            $end = ((int) $m[1] * 60) + (int) $m[2];
         }
 
         // convert to seconds
@@ -1152,8 +1303,8 @@ class Dt extends Carbon
     public static function listYears(int $from = null, int $to = null): array
     {
         $arr = [];
-        $from = (int)$from;
-        $to = (int)$to;
+        $from = (int) $from;
+        $to = (int) $to;
 
         if (empty($from)) {
             $from = date('Y') - 100;
