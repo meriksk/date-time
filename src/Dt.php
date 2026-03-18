@@ -496,75 +496,49 @@ class Dt extends Carbon
         int|string|Dt|null $baseTime = null,
         string|DateTimeZone|null $timezone = null
     ) {
-        $tz = $timezone ? $timezone : self::$timezone;
-
-        if (is_numeric($baseTime)) {
-            $dt = static::createFromTimestamp($baseTime, $tz);
-        } elseif (is_object($baseTime) && $baseTime instanceof Dt) {
-            $dt = clone $baseTime;
-            if ($tz) {
-                $dt->setTimezone($tz);
-            }
-        } else {
-            $dt = new Dt($baseTime, $tz);
-        }
-
-        if (!$dt) {
-            return false;
-        }
-
         switch ($period) {
             // second
             case 's':
             case 'sec':
             case 'second':
             case 'seconds':
-                $dt->subSeconds($value);
-                break;
+                return static::resolveTime('-' . $value . 's', false, $baseTime, $timezone);
                 // minute
             case 'm':
             case 'min':
             case 'minute':
             case 'minutes':
-                $dt->subMinutes($value);
-                break;
+                return static::resolveTime('-' . $value . 'm', false, $baseTime, $timezone);
                 // hour
             case 'h':
             case 'hour':
             case 'hours':
-                $dt->subHours($value);
-                break;
+                return static::resolveTime('-' . $value . 'h', false, $baseTime, $timezone);
                 // day
             case 'd':
             case 'day':
             case 'days':
-                $dt->subDays($value);
-                break;
+                return static::resolveTime('-' . $value . 'd', false, $baseTime, $timezone);
                 // week
             case 'w':
             case 'week':
             case 'weeks':
-                $dt->subWeeks($value);
-                break;
+                return static::resolveTime('-' . $value . 'w', false, $baseTime, $timezone);
                 // month
             case 'mo':
             case 'M':
             case 'month':
             case 'months':
-                //$dt->subMonths((int) $value);
-                $dt->subMonthsNoOverflow((int) $value);
-                break;
+                return static::resolveTime('-' . $value . 'M', false, $baseTime, $timezone);
                 // year
             case 'y':
             case 'Y':
             case 'year':
             case 'years':
-                //$dt->subYears((int) $value);
-                $dt->subYearsNoOverflow((int) $value);
-                break;
+                return static::resolveTime('-' . $value . 'y', false, $baseTime, $timezone);
                 // default modifier
             default:
-                $dt->modify($period);
+                return static::resolveTime($period, false, $baseTime, $timezone);
         }
 
         // return
@@ -607,6 +581,7 @@ class Dt extends Carbon
         string|DateTimeZone|null $timezone = null,
         bool $exclusive = false
     ) {
+
         // time range aliases
         switch ($period) {
             case 's':
@@ -641,7 +616,6 @@ class Dt extends Carbon
             case 'w':
             case 'week':
                 $period = 'now/w';
-                break;
                 break;
             case 'previous week':
             case 'week ago':
@@ -693,6 +667,7 @@ class Dt extends Carbon
                     // -2d => -2d/d
                     $period = $period . '/' . $timeUnit;
                 }
+
                 break;
         }
 
@@ -705,31 +680,78 @@ class Dt extends Carbon
     /**
      * Get relative time
      * @param string $period
-     * @param bool $returnObject
      * @param int|float $value the $value count passed in
-     * @param int|string|Dt|null $baseTime Start time
-     * @param string $timezone
-     * @return boolean|\meriksk\DateTime\Dt[]
+     * @param bool $returnObject
+     * @param int|string|DateTime|null $baseTime Start time
+     * @param string|DateTimeZone|null $timezone
+     * @return bool|\meriksk\DateTime\Dt[]
      */
-    public static function getRelativeTimeBoundaries($period, $value = 1, $returnObject = true, $baseTime = null, $timezone = null)
-    {
-        $tz = $timezone ? $timezone : self::$timezone;
-        $dt0 = self::getRelativeTime($period, $value, true, $baseTime, $tz);
-        $dt1 = null;
-
-        if (is_numeric($baseTime)) {
-            $dt1 = static::createFromTimestamp($baseTime, $tz);
-        } elseif (is_object($baseTime) && $baseTime instanceof Dt) {
-            $dt1 = clone $baseTime;
-            if ($tz) {
-                $dt1->setTimezone($tz);
-            }
-        } else {
-            $dt1 = new Dt($baseTime, $tz);
-        }
-
-        if (!$dt0 || !$dt1) {
-            return false;
+    public static function getRelativeTimeBoundaries(
+        string $period,
+        int $value = 1,
+        bool $returnObject = true,
+        int|string|DateTime|null $baseTime = null,
+        string|DateTimeZone|null $timezone = null
+    ) {
+        switch ($period) {
+            // second
+            case 's':
+            case 'sec':
+            case 'second':
+            case 'seconds':
+                $dt0 = static::resolveTime('-' . $value . 's', false, $baseTime, $timezone);
+                $dt1 = static::resolveTime('+' . $value . 's', true, $baseTime, $timezone);
+                break;
+                // minute
+            case 'm':
+            case 'min':
+            case 'minute':
+            case 'minutes':
+                $dt0 = static::resolveTime('-' . $value . 'm', false, $baseTime, $timezone);
+                $dt1 = (clone $dt0)->addMinutes($value);
+                break;
+                // hour
+            case 'h':
+            case 'hour':
+            case 'hours':
+                $dt0 = static::resolveTime('-' . $value . 'h', false, $baseTime, $timezone);
+                $dt1 = (clone $dt0)->addHours($value);
+                break;
+                // day
+            case 'd':
+            case 'day':
+            case 'days':
+                $dt0 = static::resolveTime('-' . $value . 'd', false, $baseTime, $timezone);
+                $dt1 = (clone $dt0)->addDays($value);
+                break;
+                // week
+            case 'w':
+            case 'week':
+            case 'weeks':
+                $dt0 = static::resolveTime('-' . $value . 'w', false, $baseTime, $timezone);
+                $dt1 = (clone $dt0)->addWeeks($value);
+                break;
+                // month
+            case 'mo':
+            case 'M':
+            case 'month':
+            case 'months':
+                $dt0 = static::resolveTime('-' . $value . 'M', false, $baseTime, $timezone);
+                $dt1 = (clone $dt0)->addMonthsNoOverflow($value);
+                break;
+                // year
+            case 'y':
+            case 'Y':
+            case 'year':
+            case 'years':
+                $dt0 = static::resolveTime('-' . $value . 'y', false, $baseTime, $timezone);
+                $dt1 = (clone $dt0)->addYearsNoOverflow($value);
+                break;
+                // default modifier
+            default:
+                //$dt->modify($period);
+                $dt0 = static::resolveTime('-' . trim($period, '+-'), false, $baseTime, $timezone);
+                $dt1 = static::resolveTime('+' . trim($period, '+-'), true, $baseTime, $timezone);
         }
 
         // return
@@ -823,7 +845,7 @@ class Dt extends Carbon
         bool $exclusive = false
     ): ?Dt {
         // timezone of the returned Dt object
-        $tz = $timezone ? $timezone : self::$timezone;
+        $tz = $timezone ? static::checkTimezone($timezone) : self::$timezone;
 
         // empty datetime
         if (empty($datetime)) {

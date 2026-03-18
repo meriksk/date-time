@@ -464,8 +464,6 @@ class DtTest extends BaseTestCase
     {
         $now = new Dt('now');
         $nowUtc = new Dt('now', 'UTC');
-        $dtUtc = self::$DT_2021_12_31_143000_UTC;
-        $dtLocal = self::$DT_2021_12_31_143000_EU_BRATISLAVA;
 
         // now - local tz
         $b = Dt::getBoundaries('day', true);
@@ -545,15 +543,30 @@ class DtTest extends BaseTestCase
         $this->assertEquals('2021-12-31T14:28:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
         $this->assertEquals('2021-12-31T14:28:59.999999+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
 
+        // '-2m' - exclusive
+        $b = Dt::getBoundaries('-2m', true, $baseTime, exclusive: true);
+        $this->assertEquals('2021-12-31T14:28:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
+        $this->assertEquals('2021-12-31T14:29:00.000000+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
+
         // '-5h'
         $b = Dt::getBoundaries('-5h', true, $baseTime);
         $this->assertEquals('2021-12-31T09:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
         $this->assertEquals('2021-12-31T09:59:59.999999+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
 
+        // '-5h' - exclusive
+        $b = Dt::getBoundaries('-5h', true, $baseTime, exclusive: true);
+        $this->assertEquals('2021-12-31T09:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
+        $this->assertEquals('2021-12-31T10:00:00.000000+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
+
         // '+5h'
         $b = Dt::getBoundaries('+5h', true, $baseTime);
         $this->assertEquals('2021-12-31T19:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
         $this->assertEquals('2021-12-31T19:59:59.999999+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
+
+        // '+5h' - exclusive
+        $b = Dt::getBoundaries('+5h', true, $baseTime, exclusive: true);
+        $this->assertEquals('2021-12-31T19:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
+        $this->assertEquals('2021-12-31T20:00:00.000000+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
 
         // '-1d', 'yesterday'
         $b = Dt::getBoundaries('-1d', true, $baseTime);
@@ -564,6 +577,11 @@ class DtTest extends BaseTestCase
         $b = Dt::getBoundaries('+1d', true, $baseTime);
         $this->assertEquals('2022-01-01T00:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
         $this->assertEquals('2022-01-01T23:59:59.999999+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
+
+        // '+1d', 'tomorrow' - exclusive
+        $b = Dt::getBoundaries('+1d', true, $baseTime, exclusive: true);
+        $this->assertEquals('2022-01-01T00:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
+        $this->assertEquals('2022-01-02T00:00:00.000000+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
 
         // '-1w', 'previous week', 'week ago'
         $b = Dt::getBoundaries('-1w', true, $baseTime);
@@ -589,6 +607,11 @@ class DtTest extends BaseTestCase
         $b = Dt::getBoundaries('+1y', true, $baseTime);
         $this->assertEquals('2022-01-01T00:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
         $this->assertEquals('2022-12-31T23:59:59.999999+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
+
+        // '+1y', 'next year' - exclusive
+        $b = Dt::getBoundaries('+1y', true, $baseTime, exclusive: true);
+        $this->assertEquals('2022-01-01T00:00:00.000000+01:00', $b[0]->format('Y-m-d\TH:i:s.uP'));
+        $this->assertEquals('2023-01-01T00:00:00.000000+01:00', $b[1]->format('Y-m-d\TH:i:s.uP'));
     }
 
     public function testGetRelativeTime()
@@ -643,45 +666,51 @@ class DtTest extends BaseTestCase
     public function testGetRelativeTimeBoundaries()
     {
         // test date
-        $dtUtc = self::$DT_2021_12_31_143000_UTC;
+        $dtNow = new Dt('now', 'UTC');
+        // custom time
+        $dtTest = new DateTime('2026-03-18T14:31:31+00:00');
 
-        $b = Dt::getRelativeTimeBoundaries('minute', 1, true, $dtUtc);
-        $this->assertEquals('2021-12-31T14:29:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('minute', 1, true, 'UTC');
+        $this->assertEquals((clone $dtNow)->modify('-1 MINUTE')->format('Y-m-d\TH:i:sP'), $b[0]->format('Y-m-d\TH:i:sP'));
+        $this->assertEquals((clone $dtNow)->format('Y-m-d\TH:i:sP'), $b[1]->format('Y-m-d\TH:i:sP'));
 
-        $b = Dt::getRelativeTimeBoundaries('hour', 1, true, $dtUtc);
-        $this->assertEquals('2021-12-31T13:30:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('minute', 1, true, $dtTest);
+        $this->assertEquals('2026-03-18T14:30:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
 
-        $b = Dt::getRelativeTimeBoundaries('day', 1, true, $dtUtc);
-        $this->assertEquals('2021-12-30T14:30:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('hour', 1, true, $dtTest);
+        $this->assertEquals('2026-03-18T13:31:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
 
-        $b = Dt::getRelativeTimeBoundaries('week', 1, true, $dtUtc);
-        $this->assertEquals('2021-12-24T14:30:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('day', 1, true, $dtTest);
+        $this->assertEquals('2026-03-17T14:31:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
 
-        $b = Dt::getRelativeTimeBoundaries('month', 1, true, $dtUtc);
-        $this->assertEquals('2021-11-30T14:30:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('week', 1, true, $dtTest);
+        $this->assertEquals('2026-03-11T14:31:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
 
-        $b = Dt::getRelativeTimeBoundaries('year', 1, true, $dtUtc);
-        $this->assertEquals('2020-12-31T14:30:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('month', 1, true, $dtTest);
+        $this->assertEquals('2026-02-18T14:31:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
+
+        $b = Dt::getRelativeTimeBoundaries('year', 1, true, $dtTest);
+        $this->assertEquals('2025-03-18T14:31:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
 
         // more than one
-        $b = Dt::getRelativeTimeBoundaries('hour', 2, true, $dtUtc);
-        $this->assertEquals('2021-12-31T12:30:00+00:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T14:30:00+00:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('hour', 2, true, $dtTest);
+        $this->assertEquals('2026-03-18T12:31:31+00:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T14:31:31+00:00', $b[1]->format('c'));
 
         // timezone
-        $b = Dt::getRelativeTimeBoundaries('hour', 1, true, $dtUtc, 'Europe/Bratislava');
-        $this->assertEquals('2021-12-31T14:30:00+01:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T15:30:00+01:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('hour', 1, true, $dtTest, 'Europe/Bratislava');
+        $this->assertEquals('2026-03-18T14:31:31+01:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T15:31:31+01:00', $b[1]->format('c'));
 
-        $b = Dt::getRelativeTimeBoundaries('hour', 2, true, $dtUtc, 'Europe/Bratislava');
-        $this->assertEquals('2021-12-31T13:30:00+01:00', $b[0]->format('c'));
-        $this->assertEquals('2021-12-31T15:30:00+01:00', $b[1]->format('c'));
+        $b = Dt::getRelativeTimeBoundaries('hour', 2, true, $dtTest, 'Europe/Bratislava');
+        $this->assertEquals('2026-03-18T13:31:31+01:00', $b[0]->format('c'));
+        $this->assertEquals('2026-03-18T15:31:31+01:00', $b[1]->format('c'));
     }
 
     public function testSecondsToWords()
